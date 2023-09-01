@@ -1,0 +1,3 @@
+module UnovaForm
+  VERSION: String
+end
