@@ -1,0 +1,3 @@
+#!/bin/sh
+echo "*** RBS COLLECTION UPDATE ***"
+rbs collection update

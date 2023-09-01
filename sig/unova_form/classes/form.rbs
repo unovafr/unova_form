@@ -1,0 +1,10 @@
+module UnovaForm
+  module Classes
+    class Form
+      attr_reader fields: Hash[Symbol, UnovaForm::Classes::Field]
+      attr_reader contexts: Array[Symbol]
+
+      def initialize: (Hash[Symbol, UnovaForm::Classes::Field] fields, Array[Symbol] contexts) -> void
+    end
+  end
+end

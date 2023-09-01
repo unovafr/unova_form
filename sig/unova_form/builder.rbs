@@ -1,0 +1,66 @@
+module UnovaForm
+  class Builder
+    @current_validation_context: Symbol?
+    @current_method: Symbol?
+    @field: UnovaForm::Classes::Field?
+    @helper: singleton(UnovaForm::Helpers::InputHelper)
+
+    def self.input_helper: -> singleton(UnovaForm::Helpers::InputHelper)
+
+    def self.input_helper=: (singleton(UnovaForm::Helpers::InputHelper) v) -> singleton(UnovaForm::Helpers::InputHelper)
+
+    attr_reader object: Object & UnovaForm::Concern::HasForm
+
+    def forms: -> Hash[Symbol, UnovaForm::Classes::Form]
+
+    def fields: (Symbol validation_context, omit: Array[Symbol] | Symbol | nil, only: Array[Symbol] | Symbol | nil, no_labels: bool, options_for: Hash[Symbol, Hash[Symbol, Object]], **Object options) -> (ActionView::Helpers::TagHelper::TagBuilder | ActiveSupport::SafeBuffer)
+
+    def field: (Symbol method, validation_context: Symbol, **Object options) -> (ActionView::Helpers::TagHelper::TagBuilder | ActiveSupport::SafeBuffer)
+
+    def ufields_for: (Object record_or_name_or_array, *Object args) { (UnovaForm::Builder) -> (ActionView::Helpers::TagHelper::TagBuilder | ActiveSupport::SafeBuffer) } -> (ActionView::Helpers::TagHelper::TagBuilder | ActiveSupport::SafeBuffer)
+
+    private
+
+    def convert_regex_to_js: (Regexp regex) -> String
+
+    def current_field: -> UnovaForm::Classes::Field
+
+    def current_field=: (UnovaForm::Classes::Field? v) -> UnovaForm::Classes::Field?
+
+    def get_error_message: (Symbol method, Symbol | String message) -> String
+
+    def manage_format_validator: -> [String, Hash[String, String]]
+
+    def model_attributes: -> Hash[Symbol, Object]
+
+    def current_value: -> Object?
+
+    def current_tag_name: -> String
+
+    def current_tag_id: -> String
+
+    def current_tag_type: -> Symbol
+
+    def current_errors: -> (ActionView::Helpers::TagHelper::TagBuilder | ActiveSupport::SafeBuffer)
+
+    def current_errors?: -> bool
+
+    def current_required?: -> bool
+
+    def current_options: -> Array[Hash[Symbol, String | bool?] & { label: String, value: String, disabled: bool?, selected: bool? }]?
+
+    def multiple?: -> bool
+
+    def current_file_value_url: -> String
+
+    def current_file_value: -> ActiveStorage::Blob
+
+    def current_file_type: -> Symbol
+
+    def current_accepted_files: -> Array[String]?
+
+    def current_human_name_for: (Symbol attributes, **Object options) -> String
+
+    def check_form: (Symbol validation_context) -> void
+  end
+end

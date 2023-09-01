@@ -1,0 +1,26 @@
+module UnovaForm
+  module Classes
+    class Field
+      @all_validators: Hash[Symbol, Object]
+
+      attr_reader type: singleton(FieldTypes::Base)
+      attr_reader validators: Hash[Symbol, Object]?
+      attr_reader has_confirmation: bool
+      attr_reader use_type_validators: bool
+      attr_reader required: bool
+      attr_reader required_if_persisted: bool
+      attr_reader options: (Array[Hash[Symbol, String | bool?] & { label: String, value: String, disabled: bool?, selected: bool? }] | ^(String value) -> Array[Hash[Symbol, String | bool?] & { label: String, value: String, disabled: bool?, selected: bool? }])?
+      attr_reader multiple: bool
+      attr_reader autocomplete: (Array[Hash[Symbol, String | bool?] & { label: String, value: String, disabled: bool?, selected: bool? }] | ^() -> Array[Hash[Symbol, String | bool?] & { label: String, value: String, disabled: bool?, selected: bool? }])?
+
+      def initialize: (singleton(FieldTypes::Base) field_type, Hash[Symbol, Object]? validators, bool has_confirmation, bool use_type_validators, bool required, bool required_if_persisted, (Array[Hash[Symbol, String | bool?] & { label: String, value: String, disabled: bool?, selected: bool? }] | ^(String value) -> Array[Hash[Symbol, String | bool?] & { label: String, value: String, disabled: bool?, selected: bool? }])? options, bool multiple, (Array[Hash[Symbol, String | bool?] & { label: String, value: String, disabled: bool?, selected: bool? }] | ^() -> Array[Hash[Symbol, String | bool?] & { label: String, value: String, disabled: bool?, selected: bool? }])? autocomplete) -> void
+
+      def all_validators: -> Hash[Symbol, Object]
+
+      private
+
+      def set_all_validators: -> void
+
+    end
+  end
+end

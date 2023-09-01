@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
-require_relative "unova_form/version"
+require "zeitwerk"
+loader = Zeitwerk::Loader.for_gem
+loader.setup
 
 module UnovaForm
   class Error < StandardError; end
   # Your code goes here...
+  ActionView::Base.send(:include, UnovaForm::Helpers::FormHelper)
 end

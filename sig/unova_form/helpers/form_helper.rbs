@@ -1,0 +1,11 @@
+module UnovaForm
+  module Helpers
+    module FormHelper
+      def uform_for: (Object record_or_name_or_array, *Object ars) { (UnovaForm::Builder) -> (ActionView::Helpers::TagHelper::TagBuilder | ActiveSupport::SafeBuffer) } -> (ActionView::Helpers::TagHelper::TagBuilder | ActiveSupport::SafeBuffer)
+
+      def ufields_for: (Object record_or_name_or_array, *Object args) { (UnovaForm::Builder) -> (ActionView::Helpers::TagHelper::TagBuilder | ActiveSupport::SafeBuffer) } -> (ActionView::Helpers::TagHelper::TagBuilder | ActiveSupport::SafeBuffer)
+
+      private def override_form_builder: (Array[Object] args) -> void
+    end
+  end
+end

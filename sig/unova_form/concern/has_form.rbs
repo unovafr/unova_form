@@ -1,0 +1,24 @@
+class Object
+  def deep_freeze: -> self
+
+  def deep_frozen?: -> bool
+end
+
+module UnovaForm
+  module Concern
+    module HasForm
+      @current_form_context: Symbol?
+      @forms: Hash[Symbol, UnovaForm::Classes::Form]?
+
+      def delete_field: -> void
+
+      def forms: -> Hash[Symbol, UnovaForm::Classes::Form]
+
+      def def_forms: { () -> void } -> void
+
+      def form: (Symbol validation_context, include_contexts: Array[Symbol]?, inherits_from: Symbol?, inherited_fields: Array[Symbol]?) { () -> void } -> void
+
+      def field: (Symbol validation_context, singleton(UnovaForm::FieldTypes::Base) field_type, validators: Hash[Symbol, Object]?, use_type_validators: bool, has_confirmation: bool, required: bool, required_if_persisted: bool, options: (Array[Hash[Symbol, String | bool?] & { label: String, value: String, disabled: bool?, selected: bool? }] | ^(String value) -> Array[Hash[Symbol, String | bool?] & { label: String, value: String, disabled: bool?, selected: bool? }])?, multiple: bool, autocomplete: (Array[Hash[Symbol, String | bool?] & { label: String, value: String, disabled: bool?, selected: bool? }] | ^() -> Array[Hash[Symbol, String | bool?] & { label: String, value: String, disabled: bool?, selected: bool? }])?) -> void
+    end
+  end
+end

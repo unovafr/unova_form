@@ -1,0 +1,8 @@
+module UnovaForm
+  module FieldTypes
+    class Email
+      INPUT_TYPE: Symbol
+      VALIDATORS: Hash[Symbol, Object]
+    end
+  end
+end
