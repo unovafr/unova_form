@@ -91,7 +91,8 @@ class UnovaForm::AssetsGenerator < Rails::Generators::NamedBase
       end
 
       # say @theme and ask if want to edit
-      say "Here is your @theme: #{@theme.map { |k, v| "#{k}: #{v}" }.join('\n')}"
+      say "Here is your theme:}"
+      @theme.each { |k, v| say "   #{k}: #{v}" }
       if yes?("Do you want to edit it? (y/n)")
         # ask if step by step is wanted or not
         if yes?("Do you want to edit it step by step? (y/n), if you answer no, you will be asked if you want to edit individual values.")
@@ -132,10 +133,12 @@ class UnovaForm::AssetsGenerator < Rails::Generators::NamedBase
       end
 
       case application_css.split(".").last
+        when "scss"
+          prepend_to_file application_css, "@import 'unova_form';\n"
         when "sass"
           prepend_to_file application_css, "@import 'unova_form'\n"
         else
-          prepend_to_file application_css, "@import 'unova_form';\n"
+          prepend_to_file application_css, "@import 'unova_form.css';\n"
       end
     end
 
