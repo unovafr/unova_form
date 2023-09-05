@@ -3,7 +3,7 @@
   --label-font-size: <%= @theme[:label_font_size] %>;
   --label-font-weight: <%= @theme[:label_font_weight] %>;
   --label-font-family: <%= @theme[:label_font_family] %>;
-  --label-margin-bottom: <%= @theme[:label_margin_bottom] %>;
+  --label-input-error-gap: <%= @theme[:label_margin_bottom] %>;
   --input-border-color: <%= @theme[:input_border_color] %>;
   --input-border-width: <%= @theme[:input_border_width] %>;
   --input-border-radius: <%= @theme[:input_border_radius] %>;
@@ -36,6 +36,7 @@
 div.field{
   display: flex;
   flex-direction: column;
+  gap: var(--label-input-error-gap);
 }
 
 div.field > label{
@@ -79,4 +80,39 @@ div.field > div.field-container > textarea{
   font-weight: var(--input-font-weight);
   font-family: var(--input-font-family);
   background-color: var(--input-background-color);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+div.field > div.field-container > div.field-checkboxes-item{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--label-input-error-gap);
+}
+
+div.field > div.field-container > div.field-checkboxes-item > input[type="checkbox"]{
+  color: var(--checkbox-color);
+  width: var(--checkbox-size);
+  height: var(--checkbox-size);
+  min-width: var(--checkbox-size);
+  border-color: var(--checkbox-border-color);
+  border-width: var(--checkbox-border-width);
+  border-radius: var(--checkbox-border-radius);
+  accent-color: currentColor;
+}
+
+div.field > div.field-container > div.field-checkboxes-item > input[type="radio"]{
+  color: var(--radio-color);
+  width: var(--radio-size);
+  min-width: var(--radio-size);
+  height: var(--radio-size);
+  border-color: var(--radio-border-color);
+  border-width: var(--radio-border-width);
+  border-radius: var(--radio-border-radius);
+  accent-color: currentColor;
+}
+
+div.field[data-controller="multiselect"] > select[multiple]{
+  display: none;
 }

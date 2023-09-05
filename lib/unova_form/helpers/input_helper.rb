@@ -252,7 +252,7 @@ module UnovaForm
           type: multiple && type == :select ? :multiselect : :text,
           omit_subcontainer: multiple && type == :select,
           error:, container_class:, label_class:, controller:, required:) do
-          safe_join([ tag.div(icon, class: ["icon", icon_class, ("left" if is_icon_left)]), select_el ])
+          safe_join([ (tag.div(icon, class: ["icon", icon_class, ("left" if is_icon_left)]) if type == :select), select_el ])
         end
       end
 

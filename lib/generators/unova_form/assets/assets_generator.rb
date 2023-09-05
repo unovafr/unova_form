@@ -13,6 +13,21 @@ class UnovaForm::AssetsGenerator < Rails::Generators::NamedBase
 
   private
     def allowed_asset_types = %w[css scss styles stylesheets js javascripts]
+    def asset_type = name
+
+    def default_stylesheet_dests = %w[app/assets/stylesheets app/frontend/stylesheets]
+    def existing_stylesheet_dest
+      default_stylesheet_dests.find { |d| File.directory?(d) }
+    end
+    def allowed_stylesheet_schemas = %w[css scss sass]
+    def allowed_stylesheet_frameworks = %w[vanilla tailwind]
+
+    def default_javascript_dests = %w[app/javascript app/assets/javascript app/javascripts app/assets/javascripts app/frontend/javascripts]
+    def existing_javascript_dest
+      default_javascript_dests.find { |d| File.directory?(d) }
+    end
+    def allowed_javascript_schemas = %w[js ts]
+    def allowed_javascript_frameworks = %w[stimulus]
 
     def stylesheets
       # ask for schema
@@ -47,7 +62,7 @@ class UnovaForm::AssetsGenerator < Rails::Generators::NamedBase
           @theme[:label_font_size] = "text-sm"
           @theme[:label_font_weight] = "font-normal"
           @theme[:label_font_family] = "font-sans"
-          @theme[:label_margin_bottom] = "mb-1"
+          @theme[:label_input_error_gap] = "gap-1"
           @theme[:input_border_color] = "border-gray-300"
           @theme[:input_border_width] = "border"
           @theme[:input_border_radius] = "rounded-md"
@@ -80,7 +95,7 @@ class UnovaForm::AssetsGenerator < Rails::Generators::NamedBase
           @theme[:label_font_size] = "1rem"
           @theme[:label_font_weight] = "400"
           @theme[:label_font_family] = "sans-serif"
-          @theme[:label_margin_bottom] = "0.25rem"
+          @theme[:label_input_error_gap] = "0.25rem"
           @theme[:input_border_color] = "#000000"
           @theme[:input_border_width] = "1px"
           @theme[:input_border_radius] = "0.25rem"
@@ -140,9 +155,9 @@ class UnovaForm::AssetsGenerator < Rails::Generators::NamedBase
 
       case framework
       when "tailwind"
-        template "tailwind.#{schema}.erb", "#{destination}/unova_form.#{schema}"
+        template "css/tailwind/tailwind.#{schema}.erb", "#{destination}/unova_form.#{schema}"
       else
-        template "vanilla.#{schema}.erb", "#{destination}/unova_form.#{schema}"
+        template "css/vanilla/vanilla.#{schema}.erb", "#{destination}/unova_form.#{schema}"
       end
 
       say "Stylesheet generated, trying to add it to your application css file"
@@ -163,15 +178,67 @@ class UnovaForm::AssetsGenerator < Rails::Generators::NamedBase
     end
 
     def javascripts
+      # ask for schema
+      schema = nil
+      while schema.nil?
+        schema = ask("What javascript schema do you want to use? (#{allowed_javascript_schemas.join(', ')}) default: #{allowed_javascript_schemas.first}")
+        schema = schema.downcase.strip
+        schema = allowed_javascript_schemas.first if schema.blank?
+        schema = nil unless allowed_javascript_schemas.include?(schema)
+      end
+
+      # ask for framework
+      framework = nil
+      while framework.nil?
+        framework = ask("What framework do you want to use? (#{allowed_javascript_frameworks.join(', ')}) default: #{allowed_javascript_frameworks.first}")
+        framework = framework.downcase.strip
+        framework = allowed_javascript_frameworks.first if framework.blank?
+        framework = nil unless allowed_javascript_frameworks.include?(framework)
+      end
+
+      # ask for destination
+      destination = existing_javascript_dest
+      while destination.nil?
+        destination = ask("Cannot find a valid destination, (tested: #{default_javascript_dests.join(', ')}), please enter a valid destination for your javascript files:")
+        destination = nil unless File.exist?(destination)
+      end
+
+      say "Generating javascript with schema: #{schema}, framework: #{framework} on destination: #{destination}"
+
+      # templates will be located on lib/generators/unova_form/assets/templates/js/{schema}/*
+      case framework
+      when "stimulus"
+        Dir.glob(File.expand_path("templates/js/stimulus/#{schema}/*", __dir__)).each do |template|
+          template template, "#{destination}/controllers/#{File.basename(template)}"
+        end
+        Dir.glob(File.expand_path("templates/js/stimulus/#{schema}/libs/*", __dir__)).each do |template|
+          template template, "#{destination}/libs/#{File.basename(template)}"
+        end
+      else
+        Dir.glob(File.expand_path("templates/js/vanilla/#{schema}/*", __dir__)).each do |template|
+          template template, "#{destination}/#{File.basename(template)}"
+        end
+        Dir.glob(File.expand_path("templates/js/vanilla/#{schema}/libs/*", __dir__)).each do |template|
+          template template, "#{destination}/libs/#{File.basename(template)}"
+        end
+      end
+
+      if framework != "stimulus"
+        say "Javascript generated, trying to add it to your application js file"
+
+        application_js = "#{destination}/application.#{schema}"
+        until File.exist?(application_js)
+          application_js = ask("Cannot find #{application_js}, please enter the relative path to your application js file:")
+        end
+
+        case application_js.split(".").last
+        when "ts"
+          append_to_file application_js, "import 'unova_form';\n"
+        else
+          append_to_file application_js, "//= require unova_form\n"
+        end
+      end
 
     end
 
-    def asset_type = name
-
-    def default_stylesheet_dests = %w[app/assets/stylesheets app/frontend/stylesheets]
-    def existing_stylesheet_dest
-      default_stylesheet_dests.find { |d| File.directory?(d) }
-    end
-    def allowed_stylesheet_schemas = %w[css scss sass]
-    def allowed_stylesheet_frameworks = %w[vanilla tailwind]
 end
