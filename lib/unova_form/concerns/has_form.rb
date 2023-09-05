@@ -145,8 +145,7 @@ module UnovaForm
           o.instance_variables.each do |var|
             frozen_val = o.instance_variable_get(var)
             deep_freeze(frozen_val) unless frozen_val.frozen?
-            frozen? # without this line, a crash occurs
-            o.instance_variable_set(var, frozen_val) unless frozen?
+            o.instance_variable_set(var, frozen_val) unless o.frozen?
           end
           o.freeze unless o.frozen? # Freezing of an element.
         end
