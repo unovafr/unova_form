@@ -309,7 +309,14 @@ module UnovaForm
       def current_options
         options = current_field.options
         return nil if options.nil?
-        return options.call(current_value).map { |h| h.symbolize_keys } if options.is_a?(Proc)
+
+        # if lambda has one argument
+        return options.call(current_value).map(&:symbolize_keys) if options.is_a?(Proc) && options.arity == 1
+        # if lambda has two arguments
+        return options.call(current_value, object).map(&:symbolize_keys) if options.is_a?(Proc) && options.arity == 2
+
+        # if lambda has no arguments
+        options = options.call.map(&:symbolize_keys) if options.is_a?(Proc) && options.arity == 0
 
         return options.map { |h|
           nh = h.deep_dup.symbolize_keys
