@@ -75,10 +75,10 @@ module UnovaForm
           ) do
           els = []
           els << tag.div(error, class: "error") if error
-          els << omit_subcontainer ? yield : tag.div(
+          els << (omit_subcontainer ? yield : tag.div(
             yield,
             class: array_attr(["field-container#{"-full" if type == :textarea}", subcontainer_class]),
-          )
+          ))
           els << tag.label(label, for: id, class: label_class, required:)
 
           safe_join(els)
