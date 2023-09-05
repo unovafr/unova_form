@@ -397,7 +397,8 @@ module UnovaForm
 
         defaults << :"#{element}.#{@current_method}"
         defaults << options.delete(:default) if options[:default]
-        defaults << @current_method.to_s.humanize
+        # avoid to show missing translation error on production
+        defaults << @current_method.to_s.humanize if Rails.env.production?
 
         options.reverse_merge! count: 1, default: defaults
         I18n.t(defaults.shift, **options).html_safe
