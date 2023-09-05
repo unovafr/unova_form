@@ -2,6 +2,8 @@ module UnovaForm
   class AssetsGenerator
 
 
+    def generate_asset: -> void
+
     private
       def allowed_asset_types: -> Array[String]
       def stylesheets: -> void
