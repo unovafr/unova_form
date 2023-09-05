@@ -347,8 +347,8 @@ module UnovaForm
       # @return [Symbol]
       def current_file_type
         type = current_accepted_files
-        type ||= eval("object.#{@current_method}", binding, __FILE__, __LINE__)&.content_type ||
-          eval("object.#{@current_method}", binding, __FILE__, __LINE__)&.blob&.content_type
+        type ||= current_file_value&.content_type ||
+          current_file_value&.blob&.content_type
         type = type[0].to_s if type.is_a?(Array)
         if type.nil?
           case @current_method.to_s
