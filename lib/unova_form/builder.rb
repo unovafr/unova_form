@@ -134,7 +134,7 @@ module UnovaForm
 
       if attrs[:type] == :file
         return file_field label,
-          value: current_file_value.signed_id,
+          value: current_file_value&.signed_id,
           value_url: current_file_value_url,
           accept: current_accepted_files&.join(","),
           value_type: current_file_type,
@@ -334,14 +334,14 @@ module UnovaForm
         current_field.multiple || false
       end
 
-      # @return [String]
-      def current_file_value_url
-        eval("object.#{@current_method}", binding, __FILE__, __LINE__)&.url || ""
-      end
-
       # @return [ActiveStorage::Blob]
       def current_file_value
-        eval("object.#{@current_method}", binding, __FILE__, __LINE__)
+        object.try(@current_method)
+      end
+
+      # @return [String]
+      def current_file_value_url
+        current_file_value&.url || ""
       end
 
       # @return [Symbol]

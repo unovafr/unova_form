@@ -53,7 +53,7 @@ module UnovaForm
 
     def current_file_value_url: -> String
 
-    def current_file_value: -> ActiveStorage::Blob
+    def current_file_value: -> ActiveStorage::Blob?
 
     def current_file_type: -> Symbol
 
