@@ -1,9 +1,3 @@
-class Object
-  def deep_freeze: -> self
-
-  def deep_frozen?: -> bool
-end
-
 module UnovaForm
   module Concern
     module HasForm
@@ -19,6 +13,11 @@ module UnovaForm
       def form: (Symbol validation_context, include_contexts: Array[Symbol]?, inherits_from: Symbol?, inherited_fields: Array[Symbol]?) { () -> void } -> void
 
       def field: (Symbol validation_context, singleton(UnovaForm::FieldTypes::Base) field_type, validators: Hash[Symbol, Object]?, use_type_validators: bool, has_confirmation: bool, required: bool, required_if_persisted: bool, options: (Array[Hash[Symbol, String | bool?] & { label: String, value: String, disabled: bool?, selected: bool? }] | ^(String value) -> Array[Hash[Symbol, String | bool?] & { label: String, value: String, disabled: bool?, selected: bool? }])?, multiple: bool, autocomplete: (Array[Hash[Symbol, String | bool?] & { label: String, value: String, disabled: bool?, selected: bool? }] | ^() -> Array[Hash[Symbol, String | bool?] & { label: String, value: String, disabled: bool?, selected: bool? }])?) -> void
+
+      private
+        def deep_freeze: (Object) -> Object
+
+        def deep_frozen?: (Object) -> bool
     end
   end
 end
