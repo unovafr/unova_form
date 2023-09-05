@@ -1,5 +1,5 @@
 module UnovaForm
-  module Concern
+  module Concerns
     module HasForm
       @current_form_context: Symbol?
       @forms: Hash[Symbol, UnovaForm::Classes::Form]?

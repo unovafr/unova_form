@@ -13,7 +13,7 @@ module UnovaForm
       # These are bound stimulus controller by default to input fields of given types
       #
       # @return [Hash{Symbol => String}]
-      def self.controllers_for_types = @controllers_for_types ||= {
+      def controllers_for_types = @controllers_for_types ||= {
         password: "password-field",
         multiselect: "multiselect",
         number: "number-field",
@@ -24,27 +24,27 @@ module UnovaForm
       #
       # @param [Symbol] type
       # @return [String, NilClass]
-      def self.remove_controller_for_type(type) = self.controllers_for_types.delete(type)
+      def remove_controller_for_type(type) = controllers_for_types.delete(type)
 
       # Used to add stimulus controller for input field type
       #
       # @param [Symbol] type
       # @param [String] controller
       # @return [String]
-      def self.add_controller_for_type(type, controller) = self.controllers_for_types[type] = controller
+      def add_controller_for_type(type, controller) = controllers_for_types[type] = controller
 
       # Used to get stimulus controller for input field type
       #
       # @param [Symbol] type
       # @return [String, NilClass]
-      def self.controller_for_type(type) = self.controllers_for_types[type]
+      def controller_for_type(type) = controllers_for_types[type]
 
       def data_controller_of(type, current_controller)
         if type.nil?
           return nil unless current_controller.present?
           return beautify_string_attr(current_controller.to_s)
         end
-        array_attr [self.class.controller_for_type(type.to_sym), current_controller.to_s]
+        array_attr [controller_for_type(type.to_sym), current_controller.to_s]
       end
 
       # @param [String, NilClass] label

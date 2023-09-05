@@ -7,13 +7,13 @@ module UnovaForm
 
       @controllers_for_types: Hash[Symbol, String]
 
-      def self.controllers_for_types: -> Hash[Symbol, String]
+      def controllers_for_types: -> Hash[Symbol, String]
 
-      def self.remove_controller_for_type: (Symbol type) -> String?
+      def remove_controller_for_type: (Symbol type) -> String?
 
-      def self.add_controller_for_type: (Symbol type, String controller) -> String
+      def add_controller_for_type: (Symbol type, String controller) -> String
 
-      def self.controller_for_type: (Symbol type) -> String?
+      def controller_for_type: (Symbol type) -> String?
 
       def data_controller_of: (Symbol? | String? type, String? | Symbol? current_controller) -> String
 
