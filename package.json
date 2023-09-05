@@ -1,0 +1,10 @@
+{
+  "name": "unova_form",
+  "dependencies": {
+    "@hotwired/stimulus": "^3.2.2",
+    "@types/node": "^20.5.9"
+  },
+  "devDependencies": {
+    "stimulus-use": "^0.52.0"
+  }
+}

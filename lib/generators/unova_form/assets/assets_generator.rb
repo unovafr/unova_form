@@ -208,14 +208,14 @@ class UnovaForm::AssetsGenerator < Rails::Generators::NamedBase
       # templates will be located on lib/generators/unova_form/assets/templates/js/{schema}/*
       case framework
       when "stimulus"
-        Dir.glob(File.expand_path("templates/js/stimulus/#{schema}/*", __dir__)).each do |template|
+        Dir.glob(File.expand_path("templates/js/stimulus/#{schema}/controllers/*", __dir__)).each do |template|
           template template, "#{destination}/controllers/#{File.basename(template)}"
         end
         Dir.glob(File.expand_path("templates/js/stimulus/#{schema}/libs/*", __dir__)).each do |template|
           template template, "#{destination}/libs/#{File.basename(template)}"
         end
       else
-        Dir.glob(File.expand_path("templates/js/vanilla/#{schema}/*", __dir__)).each do |template|
+        Dir.glob(File.expand_path("templates/js/vanilla/#{schema}/controllers/*", __dir__)).each do |template|
           template template, "#{destination}/#{File.basename(template)}"
         end
         Dir.glob(File.expand_path("templates/js/vanilla/#{schema}/libs/*", __dir__)).each do |template|
