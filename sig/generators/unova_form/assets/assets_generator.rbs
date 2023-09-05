@@ -1,0 +1,13 @@
+module UnovaForm
+  class AssetsGenerator
+
+
+    private
+      def allowed_asset_types: -> Array[String]
+      def stylesheets: -> void
+      def allowed_stylesheet_frameworks: -> Array[String]
+      def allowed_stylesheet_schemas: -> Array[String]
+      def default_stylesheet_dests: -> Array[String]
+      def existing_stylesheet_dest: -> String?
+  end
+end

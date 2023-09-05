@@ -1,7 +1,0 @@
-module Generators
-  class Css
-    def allowed_schemas: -> Array[String]
-
-    def existing_destination: -> String
-  end
-end
