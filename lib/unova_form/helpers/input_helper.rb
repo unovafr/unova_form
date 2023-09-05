@@ -146,7 +146,7 @@ module UnovaForm
           required:,
           id:,
           disabled:,
-          list: autocomplete.present? ? id + "_list" : nil,
+          list: options.present? ? id + "_list" : nil,
           rows: (rows if type == :textarea),
           name: name || id,
           class: array_attr([input_class, ("with-controls#{"-on-input" if controls_on_input}" if with_controls)]),
