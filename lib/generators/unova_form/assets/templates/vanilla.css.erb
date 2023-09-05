@@ -21,6 +21,16 @@
   --error-font-family: <%= @theme[:error_font_family] %>;
   --error-margin-top: <%= @theme[:error_margin_top] %>;
   --error-margin-bottom: <%= @theme[:error_margin_bottom] %>;
+  --checkbox-color: <%= @theme[:checkbox_color] %>;
+  --checkbox-size: <%= @theme[:checkbox_size] %>;
+  --checkbox-border-color: <%= @theme[:checkbox_border_color] %>;
+  --checkbox-border-width: <%= @theme[:checkbox_border_width] %>;
+  --checkbox-border-radius: <%= @theme[:checkbox_border_radius] %>;
+  --radio-color: <%= @theme[:radio_color] %>;
+  --radio-size: <%= @theme[:radio_size] %>;
+  --radio-border-color: <%= @theme[:radio_border_color] %>;
+  --radio-border-width: <%= @theme[:radio_border_width] %>;
+  --radio-border-radius: <%= @theme[:radio_border_radius] %>;
 }
 
 div.field{
@@ -28,3 +38,45 @@ div.field{
   flex-direction: column;
 }
 
+div.field > label{
+  order: 0;
+  color: var(--label-color);
+  font-size: var(--label-font-size);
+  font-weight: var(--label-font-weight);
+  font-family: var(--label-font-family);
+  margin-bottom: var(--label-margin-bottom);
+}
+
+div.field > div.error{
+  order: 2;
+  color: var(--error-color);
+  font-size: var(--error-font-size);
+  font-weight: var(--error-font-weight);
+  font-family: var(--error-font-family);
+  margin-top: var(--error-margin-top);
+  margin-bottom: var(--error-margin-bottom);
+}
+
+div.field > input,
+div.field > select,
+div.field > textarea,
+div.field > div.field-container{
+  order: 1;
+}
+
+div.field > input,
+div.field > select,
+div.field > textarea,
+div.field > div.field-container > input,
+div.field > div.field-container > select,
+div.field > div.field-container > textarea{
+  border-color: var(--input-border-color);
+  border-width: var(--input-border-width);
+  border-radius: var(--input-border-radius);
+  padding: var(--input-padding);
+  color: var(--input-color);
+  font-size: var(--input-font-size);
+  font-weight: var(--input-font-weight);
+  font-family: var(--input-font-family);
+  background-color: var(--input-background-color);
+}

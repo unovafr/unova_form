@@ -65,6 +65,16 @@ class UnovaForm::AssetsGenerator < Rails::Generators::NamedBase
           @theme[:error_font_family] = "font-sans"
           @theme[:error_margin_top] = "mt-1"
           @theme[:error_margin_bottom] = "mb-1"
+          @theme[:checkbox_color] = "text-blue-500"
+          @theme[:checkbox_size] = "h-4 w-4"
+          @theme[:checkbox_border_color] = "border-gray-300"
+          @theme[:checkbox_border_width] = "border"
+          @theme[:checkbox_border_radius] = "rounded"
+          @theme[:radio_color] = "text-blue-500"
+          @theme[:radio_size] = "h-4 w-4"
+          @theme[:radio_border_color] = "border-gray-300"
+          @theme[:radio_border_width] = "border"
+          @theme[:radio_border_radius] = "rounded-full"
         else
           @theme[:label_color] = "#000000"
           @theme[:label_font_size] = "1rem"
@@ -88,10 +98,20 @@ class UnovaForm::AssetsGenerator < Rails::Generators::NamedBase
           @theme[:error_font_family] = "sans-serif"
           @theme[:error_margin_top] = "0.25rem"
           @theme[:error_margin_bottom] = "0.25rem"
+          @theme[:checkbox_color] = "#000000"
+          @theme[:checkbox_size] = "1rem"
+          @theme[:checkbox_border_color] = "#000000"
+          @theme[:checkbox_border_width] = "1px"
+          @theme[:checkbox_border_radius] = "0.25rem"
+          @theme[:radio_color] = "#000000"
+          @theme[:radio_size] = "1rem"
+          @theme[:radio_border_color] = "#000000"
+          @theme[:radio_border_width] = "1px"
+          @theme[:radio_border_radius] = "50%"
       end
 
       # say @theme and ask if want to edit
-      say "Here is your theme:}"
+      say "Here is your theme:"
       @theme.each { |k, v| say "   #{k}: #{v}" }
       if yes?("Do you want to edit it? (y/n)")
         # ask if step by step is wanted or not
