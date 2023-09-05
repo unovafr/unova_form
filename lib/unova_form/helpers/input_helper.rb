@@ -322,7 +322,7 @@ module UnovaForm
         icon ||= FILE_FIELD_DEFAULT_ICON
         remove_icon ||= "x".html_safe.freeze
 
-        field_container(label, id:, type:, error:, container_class:, label_class:, controller:, omit_subcontainer: true) do
+        field_container(label, id:, type: :file, error:, container_class:, label_class:, controller:, omit_subcontainer: true) do
           safe_join([
             content_tag(
               :input,
