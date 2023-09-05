@@ -20,7 +20,7 @@ class UnovaForm::AssetsGenerator < Rails::Generators::NamedBase
       while schema.nil?
         schema = ask("What stylesheet schema do you want to use? (#{allowed_stylesheet_schemas.join(', ')}) default: #{allowed_stylesheet_schemas.first}")
         schema = schema.downcase.strip
-        schema = allowed_stylesheet_schemas.first if schema.blank
+        schema = allowed_stylesheet_schemas.first if schema.blank?
         schema = nil unless allowed_stylesheet_schemas.include?(schema)
       end
 
@@ -29,7 +29,7 @@ class UnovaForm::AssetsGenerator < Rails::Generators::NamedBase
       while framework.nil?
         framework = ask("What framework do you want to use? (#{allowed_stylesheet_frameworks.join(', ')}) default: #{allowed_stylesheet_frameworks.first}")
         framework = framework.downcase.strip
-        framework = allowed_stylesheet_frameworks.first if framework.blank
+        framework = allowed_stylesheet_frameworks.first if framework.blank?
         framework = nil unless allowed_stylesheet_frameworks.include?(framework)
       end
 
