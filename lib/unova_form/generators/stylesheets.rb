@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-module Generators
-  module UnovaForm
+module UnovaForm
+  module Generators
     class Stylesheets < Rails::Generators::Base
       source_root File.expand_path("templates", __dir__ || __FILE__.split("/")[0...-1].join("/"))
 
