@@ -8,4 +8,5 @@ module UnovaForm
   class Error < StandardError; end
   # Your code goes here...
   ActionView::Base.send(:include, UnovaForm::Helpers::FormHelper)
+
 end

@@ -1,0 +1,13 @@
+module UnovaForm
+  module Stylesheets
+    module Generators
+      class Stylesheets
+        def allowed_frameworks: -> Array[String]
+
+        def allowed_schemas: -> Array[String]
+
+        def existing_destination: -> String?
+      end
+    end
+  end
+end
