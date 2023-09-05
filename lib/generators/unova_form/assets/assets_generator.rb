@@ -212,14 +212,14 @@ class UnovaForm::AssetsGenerator < Rails::Generators::NamedBase
           template template, "#{destination}/controllers/#{File.basename(template)}"
         end
         Dir.glob(File.expand_path("templates/js/stimulus/#{schema}/lib/*", __dir__)).each do |template|
-          template template, "#{destination}/libs/#{File.basename(template)}"
+          template template, "#{destination}/lib/#{File.basename(template)}"
         end
       else
         Dir.glob(File.expand_path("templates/js/vanilla/#{schema}/controllers/*", __dir__)).each do |template|
           template template, "#{destination}/#{File.basename(template)}"
         end
         Dir.glob(File.expand_path("templates/js/vanilla/#{schema}/lib/*", __dir__)).each do |template|
-          template template, "#{destination}/libs/#{File.basename(template)}"
+          template template, "#{destination}/lib/#{File.basename(template)}"
         end
       end
 
