@@ -380,13 +380,24 @@ module UnovaForm
       # @return [String]
       def current_human_name_for(element = :attributes, **options)
         defaults = object.class.lookup_ancestors.map do |klass|
-          [:"#{object.class.i18n_scope}.#{element}.#{klass.model_name.i18n_key}.#{@current_method}",
-            :"#{object.class.i18n_scope}.#{element}.#{klass.model_name.i18n_key.to_s.tr('.', '/')}.#{@current_method}"]
+          [
+            :"#{object.class.i18n_scope}.#{element}.#{klass.model_name.i18n_key}.#{@current_method}",
+            # for ones that have all model translations in one file:
+            # active_record:
+            #   <model_name>:
+            #     attributes:
+            #       **attributes**
+            #     placeholders:
+            #       **placeholders**
+            :"#{object.class.i18n_scope}.#{klass.model_name.i18n_key}.#{element}.#{@current_method}",
+            # for ones that dont want keys like module/model, but path module.model
+            :"#{object.class.i18n_scope}.#{element}.#{klass.model_name.i18n_key.to_s.tr('/', '.')}.#{@current_method}",
+          ]
         end.flatten
 
         defaults << :"#{element}.#{@current_method}"
         defaults << options.delete(:default) if options[:default]
-        defaults << @current_method.to_s.humanize if Rails.env.production? # Monkey patch
+        defaults << @current_method.to_s.humanize
 
         options.reverse_merge! count: 1, default: defaults
         I18n.t(defaults.shift, **options).html_safe
