@@ -1,11 +1,9 @@
 # frozen_string_literal: true
 
-module UnovaForm
-  module Generators
+module Generators
+  module UnovaForm
     class StylesheetsGenerator < Rails::Generators::NamedBase
       source_root File.expand_path("templates", __dir__ || __FILE__.split("/")[0...-1].join("/"))
-
-      namespace "unova_forms"
 
       def default_destinations = %w[app/assets/stylesheets app/frontend/stylesheets]
       def existing_destination
