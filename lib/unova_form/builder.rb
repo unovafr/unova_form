@@ -121,13 +121,12 @@ module UnovaForm
         required: current_required?,
         options: current_options,
         placeholder: current_human_name_for(:placeholders),
-        autocomplete: current_field.autocomplete,
         **options.except(:no_label, :label)
       }
 
       label = options[:no_label] ? nil : options[:label] || current_human_name_for
 
-      if attrs[:options].present?
+      if attrs[:options].present? && [:checkboxes, :select].include?(attrs[:type].to_sym)
         return select_field label, multiple: multiple?, **attrs
       end
 
@@ -310,12 +309,12 @@ module UnovaForm
         options = current_field.options
         return nil if options.nil?
 
-        # if lambda has one argument
+        # if lambda has one argument, pass current_value
         return options.call(current_value).map(&:symbolize_keys) if options.is_a?(Proc) && options.arity == 1
-        # if lambda has two arguments
+        # if lambda has two arguments, pass current_value and object model (if options are dynamic using current model)
         return options.call(current_value, object).map(&:symbolize_keys) if options.is_a?(Proc) && options.arity == 2
 
-        # if lambda has no arguments
+        # if lambda has no arguments, selected option will be the current_value
         options = options.call.map(&:symbolize_keys) if options.is_a?(Proc) && options.arity == 0
 
         return options.map { |h|

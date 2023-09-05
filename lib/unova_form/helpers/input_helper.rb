@@ -108,7 +108,7 @@ module UnovaForm
       # @param [Numeric, NilClass] step
       # @param [String, NilClass] pattern
       # @return [ActionView::Helpers::TagHelper::TagBuilder, ActiveSupport::SafeBuffer]
-      def input_field(label, id: nil, type: :text, name: nil, error: nil, value: nil, required: nil, disabled: nil, placeholder: nil, icon: nil, is_icon_left: nil, container_class: nil, input_class: nil, label_class: nil, icon_class: nil, rows: "3", controller: nil, with_controls: false, controls_on_input: false, min: nil, max: nil, step: nil, pattern: nil, autocomplete: nil, **options)
+      def input_field(label, id: nil, type: :text, name: nil, error: nil, value: nil, required: nil, disabled: nil, placeholder: nil, icon: nil, is_icon_left: nil, container_class: nil, input_class: nil, label_class: nil, icon_class: nil, rows: "3", controller: nil, with_controls: false, controls_on_input: false, min: nil, max: nil, step: nil, pattern: nil, options: nil, **_options)
         id ||= random_id
 
         case type
@@ -154,7 +154,7 @@ module UnovaForm
           pattern: pattern&.gsub("\"", "\\\"")&.gsub("\\", "\\\\"),
           step:,
           **minmax,
-          **options
+          **_options
         )
 
         els << tag.button("+", type: :button,
@@ -163,10 +163,9 @@ module UnovaForm
         ) if with_controls && type == :number
 
 
-        if autocomplete.present?
-          autocomplete_data = autocomplete.is_a?(Proc) ? autocomplete.call : autocomplete
+        if options.present?
           els << content_tag(:datalist,
-            safe_join(autocomplete_data.map { |d| tag.option(d[:label], value: d[:value], disabled: d[:disabled]) }),
+            safe_join(options.map { |d| tag.option(d[:label], value: d[:value], disabled: d[:disabled]) }),
             id: id + "_list",
           )
         end
