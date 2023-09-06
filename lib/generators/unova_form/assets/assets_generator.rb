@@ -2,13 +2,18 @@
 
 require "rails/generators/named_base"
 
+class PromptError < StandardError; end
+
 class UnovaForm::AssetsGenerator < Rails::Generators::NamedBase
   source_root File.expand_path("templates", __dir__ || __FILE__.split("/")[0...-1].join("/"))
 
   def generate_asset
-    raise "Invalid asset type: #{asset_type}, must be one of #{allowed_asset_types.join(', ')}" unless allowed_asset_types.include?(asset_type)
+    raise PromptError, "Invalid asset type: #{asset_type}, must be one of #{allowed_asset_types.join(', ')}" unless allowed_asset_types.include?(asset_type)
     stylesheets if asset_type.in?(%w[css scss styles stylesheets])
     javascripts if asset_type.in?(%w[js javascripts])
+
+  rescue PromptError => e
+    say e.message
   end
 
   private
@@ -90,6 +95,12 @@ class UnovaForm::AssetsGenerator < Rails::Generators::NamedBase
           @theme[:radio_border_color] = "border-gray-300"
           @theme[:radio_border_width] = "border"
           @theme[:radio_border_radius] = "rounded-full"
+          @theme[:icon_text_size] = "text-lg"
+          @theme[:icon_size] = "h-5 w-5"
+          @theme[:icon_left_pos] = "left-2"
+          @theme[:icon_right_pos] = "right-2"
+          @theme[:input_icon_right_padding] = "pr-8"
+          @theme[:input_icon_left_padding] = "pl-8"
         else
           @theme[:label_color] = "#000000"
           @theme[:label_font_size] = "1rem"
@@ -123,6 +134,12 @@ class UnovaForm::AssetsGenerator < Rails::Generators::NamedBase
           @theme[:radio_border_color] = "#000000"
           @theme[:radio_border_width] = "1px"
           @theme[:radio_border_radius] = "50%"
+          @theme[:icon_text_size] = "1.25rem"
+          @theme[:icon_size] = "1.25rem"
+          @theme[:icon_left_pos] = "0.5rem"
+          @theme[:icon_right_pos] = "0.5rem"
+          @theme[:input_icon_right_padding] = "2rem"
+          @theme[:input_icon_left_padding] = "2rem"
       end
 
       # say @theme and ask if want to edit
@@ -239,6 +256,12 @@ class UnovaForm::AssetsGenerator < Rails::Generators::NamedBase
         end
       end
 
+      say ""
+      say "=============================================================="
+      say "                      Impotant note:"
+      say "You need stimulus and stimulus-use to be installed on your app"
+      say "JS code use modern javascript, so you may need to transpile it"
+      say "=============================================================="
     end
 
 end

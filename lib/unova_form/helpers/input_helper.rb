@@ -127,11 +127,6 @@ module UnovaForm
         minmax = is_length ? { min:, max:, step: } : { min:, max: }
 
         els = []
-        els << tag.div(icon,
-          class: ["icon", icon_class, ("left" if is_icon_left)],
-          data: ({ action: "click->password-field#toggle" } if type == :password)
-        ) if icon.present? && !with_controls
-
         els << tag.button("-", type: :button,
           class: array_attr(["field-number-minus", ("on-input" if controls_on_input)]),
           data: { action: "click->number-field#sub" }
@@ -149,7 +144,11 @@ module UnovaForm
           list: options.present? ? id + "_list" : nil,
           rows: (rows if type == :textarea),
           name: name || id,
-          class: array_attr([input_class, ("with-controls#{"-on-input" if controls_on_input}" if with_controls)]),
+          class: array_attr([
+                              input_class,
+                              ("with-controls#{"-on-input" if controls_on_input}" if with_controls),
+                              ("with-icon#{"-left" if is_icon_left}" if icon.present?)
+                            ]),
           title: (placeholder || name || id if label.nil?),
           pattern: pattern&.gsub("\"", "\\\"")&.gsub("\\", "\\\\"),
           step:,
@@ -162,6 +161,10 @@ module UnovaForm
           data: { action: "click->number-field#add" }
         ) if with_controls && type == :number
 
+        els << tag.div(icon,
+                       class: array_attr(["icon", icon_class, ("left" if is_icon_left)]),
+                       data: ({ action: "click->password-field#toggle" } if type == :password)
+        ) if icon.present? && !with_controls
 
         if options.present?
           els << content_tag(:datalist,
@@ -216,7 +219,10 @@ module UnovaForm
             id:,
             name: name || id,
             required:,
-            class: input_class,
+            class: array_attr([
+                                input_class,
+                                ("with-icon#{"-left" if is_icon_left}" if icon.present?)
+                              ]),
             title: (placeholder || name || id if label.nil?),
             multiple:,
             disabled:,
@@ -252,7 +258,9 @@ module UnovaForm
           type: multiple && type == :select ? :multiselect : :text,
           omit_subcontainer: multiple && type == :select,
           error:, container_class:, label_class:, controller:, required:) do
-          safe_join([ (tag.div(icon, class: ["icon", icon_class, ("left" if is_icon_left)]) if type == :select), select_el ])
+          safe_join([ select_el,
+                      (tag.div(icon, class: array_attr(["icon", icon_class, ("left" if is_icon_left)])) if type == :select)
+                    ])
         end
       end
 

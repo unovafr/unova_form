@@ -130,8 +130,6 @@ module UnovaForm
         return select_field label, multiple: multiple?, **attrs
       end
 
-      attrs.delete(:options)
-
       if attrs[:type] == :file
         return file_field label,
           value: current_file_value&.signed_id,

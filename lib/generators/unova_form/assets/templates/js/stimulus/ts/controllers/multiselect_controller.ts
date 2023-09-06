@@ -14,7 +14,8 @@ export default class extends StimulusController {
   private responseItemKey?: string | null;
   private responseItemLabel?: string | null;
   private timeout?: NodeJS.Timeout;
-  private placeholder: string = "Sélectionner...";
+  private placeholder: string = "Select...";
+  private searchPlaceholder: string = "Search...";
 
   connect() {
     this.selectEl = this.findEl<HTMLSelectElement>(":scope>select", "No select element found");
@@ -28,19 +29,19 @@ export default class extends StimulusController {
       `
         <div class="multiselect-container" data-action="click->multiselect#startsearch">
           <div class="multiselect-selected-element-container">
-            <span class="text-grey">${this.placeholder}</span>
+            <span>${this.placeholder}</span>
           </div>
           <div class="input-container">
-            <input type="search" placeholder="Rechercher..." data-action="keyup->multiselect#updatesearch">
+            <input type="search" placeholder="${this.searchPlaceholder}" data-action="keyup->multiselect#updatesearch">
           </div>
           <div class="multiselect-dropdown"></div>
         </div>
       `
     );
     this.containerEl = this.findEl(":scope>div.multiselect-container", "No container element found");
-    this.SelectedElementsContainerEl = this.findEl(":scope>div.multiselect-selected-element-container", "No selected element container element found");
-    this.inputSearchEl = this.findEl(":scope>div.input-container>input", "No input element found");
-    this.dropdownEl = this.findEl(":scope>div.multiselect-dropdown", "No dropdown element found");
+    this.SelectedElementsContainerEl = this.findEl(":scope>div.multiselect-container>div.multiselect-selected-element-container", "No selected element container element found");
+    this.inputSearchEl = this.findEl(":scope>div.multiselect-container>div.input-container>input", "No input element found");
+    this.dropdownEl = this.findEl(":scope>div.multiselect-container>div.multiselect-dropdown", "No dropdown element found");
 
     this.selectEl.querySelectorAll<HTMLOptionElement>("option[selected]:not([disabled])").forEach((el) => {
       this.selectedValues.push({ value: el.value, label: el.innerText });
@@ -133,7 +134,7 @@ export default class extends StimulusController {
       if (this.selectEl.nextElementSibling?.hasAttribute("data-empty-value-definition"))
         this.selectEl.nextElementSibling.remove();
     } else if(!this.selectEl.nextElementSibling?.hasAttribute("data-empty-value-definition")) {
-      this.selectEl.insertAdjacentHTML("afterend", `<input class="hidden" data-empty-value-definition name="${this.selectEl.name}" value="" title="empty value of multiselect" />`)
+      this.selectEl.insertAdjacentHTML("afterend", `<input type="hidden" data-empty-value-definition name="${this.selectEl.name}" value="" title="empty value of multiselect" />`)
     }
     if(this.options){
       this.dropdownEl.innerHTML = "";
@@ -147,7 +148,7 @@ export default class extends StimulusController {
         this.dropdownEl.insertAdjacentHTML(
           "beforeend",
           `
-            <button type="button" class="btn" data-value="${value}" data-label="${label}" data-action="click->multiselect#add">${label}</button>
+            <button type="button" data-value="${value}" data-label="${label}" data-action="click->multiselect#add">${label}</button>
           `
         );
       }
@@ -191,7 +192,7 @@ export default class extends StimulusController {
               });
             } else {
               this.dropdownEl.innerHTML =
-                "<span class='block ml-3'>Sélectionner...</span>";
+                `<span class='block ml-3'>${this.placeholder}</span>`;
             }
           });
     }, 500);
