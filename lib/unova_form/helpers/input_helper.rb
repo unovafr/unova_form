@@ -8,7 +8,7 @@ module UnovaForm
 
       PASSWORD_FIELD_DEFAULT_ICON = '<svg focuseable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 570 512" width="16"><path fill="currentColor" d="M288 80c-65.2 0-118.8 29.6-159.9 67.7C89.6 183.5 63 226 49.4 256c13.6 30 40.2 72.5 78.6 108.3C169.2 402.4 222.8 432 288 432s118.8-29.6 159.9-67.7C486.4 328.5 513 286 526.6 256c-13.6-30-40.2-72.5-78.6-108.3C406.8 109.6 353.2 80 288 80zM95.4 112.6C142.5 68.8 207.2 32 288 32s145.5 36.8 192.6 80.6c46.8 43.5 78.1 95.4 93 131.1c3.3 7.9 3.3 16.7 0 24.6c-14.9 35.7-46.2 87.7-93 131.1C433.5 443.2 368.8 480 288 480s-145.5-36.8-192.6-80.6C48.6 356 17.3 304 2.5 268.3c-3.3-7.9-3.3-16.7 0-24.6C17.3 208 48.6 156 95.4 112.6zM288 336c44.2 0 80-35.8 80-80s-35.8-80-80-80c-.7 0-1.3 0-2 0c1.3 5.1 2 10.5 2 16c0 35.3-28.7 64-64 64c-5.5 0-10.9-.7-16-2c0 .7 0 1.3 0 2c0 44.2 35.8 80 80 80zm0-208a128 128 0 1 1 0 256 128 128 0 1 1 0-256z"></path></svg>'.html_safe.freeze
       SEARCH_FIELD_DEFAULT_ICON = '<svg focuseable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="16"><path fill="currentColor" d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"></path></svg>'.html_safe.freeze
-      FILE_FIELD_DEFAULT_ICON = '<svg focuseable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 570 512" width="16"><path fill="currentColor" d="M149.1 64.8L138.7 96H64C28.7 96 0 124.7 0 160V416c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V160c0-35.3-28.7-64-64-64H373.3L362.9 64.8C356.4 45.2 338.1 32 317.4 32H194.6c-20.7 0-39 13.2-45.5 32.8zM256 192a96 96 0 1 1 0 192 96 96 0 1 1 0-192z"></path></svg>'.html_safe.freeze
+      FILE_FIELD_DEFAULT_ICON = '<svg focuseable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16"><path fill="currentColor" d="M19 9h-4V3H9v6H5l7 8zM4 19h16v2H4z"></path></svg>'.html_safe.freeze
 
       # These are bound stimulus controller by default to input fields of given types
       #
@@ -79,7 +79,7 @@ module UnovaForm
             yield,
             class: array_attr(["field-container#{"-full" if type == :textarea}", subcontainer_class]),
           ))
-          els << tag.label(label, for: id, class: label_class, required:)
+          els << tag.label(label, for: id, class: label_class, required:) if label.present?
 
           safe_join(els)
         end
@@ -328,9 +328,9 @@ module UnovaForm
         id = id == "" ? (0...50).map { ("a".."z").to_a[rand(26)] }.join : id
 
         icon ||= FILE_FIELD_DEFAULT_ICON
-        remove_icon ||= "x".html_safe.freeze
+        remove_icon ||= "X".html_safe.freeze
 
-        field_container(label, id:, type: :file, error:, container_class:, label_class:, controller:, omit_subcontainer: true) do
+        field_container(nil, id:, type: :file, error:, container_class:, label_class:, controller:, omit_subcontainer: true) do
           safe_join([
             content_tag(
               :input,
@@ -356,7 +356,7 @@ module UnovaForm
                   (
                     content_tag :div, class: "preview-container" do
                       content_tag(:div, icon + content_tag(:span, I18n.t(:select_file), class: "filename mt-1"), class: "preview-placeholder") +
-                        (value_type == :other ? tag.div : content_tag(value_type, "", src: value_url, class: "preview", controls: value_type != :img, alt: "file_input_preview", size: "400x200")) +
+                        (value_type == :other ? tag.div(nil, class: "preview") : content_tag(value_type, "", src: value_url, class: "preview", controls: value_type != :img, alt: "file_input_preview", size: "400x200")) +
                         content_tag(:button, remove_icon, data: { action: "click->file-field#reset" }, title: I18n.t(:reset), type: :button)
                     end
                   )

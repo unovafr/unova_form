@@ -131,8 +131,12 @@ div.field > div.error{
 div.field > input,
 div.field > select,
 div.field > textarea,
-div.field > div.field-container{
+div.field > div.field-container,
+div.field > div.field-container-full{
   order: 1;
+}
+div.field > div.field-container-full{
+  flex: 1;
 }
 
 /*
@@ -162,7 +166,7 @@ div.field > select,
 div.field > textarea,
 div.field > div.field-container > input,
 div.field > div.field-container > select,
-div.field > div.field-container > textarea{
+div.field > div.field-container-full > textarea{
   border-color: var(--input-border-color);
   border-width: var(--input-border-width);
   border-radius: var(--input-border-radius);
@@ -175,8 +179,13 @@ div.field > div.field-container > textarea{
   width: 100%;
   box-sizing: border-box;
 }
-div.field input[type="hidden"]{
+div.field > input[type="hidden"],
+div.field > div.field-container > input[type="hidden"]{
   display: none;
+}
+div.field > input[type="color"],
+div.field > div.field-container > input[type="color"]{
+  padding: 0;
 }
 
 /*
@@ -271,6 +280,7 @@ div.field > div.field-container > div.field-checkboxes-item > input[type="checkb
   border-width: var(--checkbox-border-width);
   border-radius: var(--checkbox-border-radius);
   accent-color: currentColor;
+  margin: 0;
 }
 
 /*
@@ -288,6 +298,7 @@ div.field > div.field-container > div.field-checkboxes-item > input[type="radio"
   border-width: var(--radio-border-width);
   border-radius: var(--radio-border-radius);
   accent-color: currentColor;
+  margin: 0;
 }
 
 /*
@@ -424,4 +435,139 @@ div.field[data-controller="multiselect"] > div.multiselect-container > div.input
 div.field[data-controller="multiselect"] > div.multiselect-container > div.input-container > input.show{
   height: 2rem;
   padding: var(--input-padding);
+}
+
+/*
+  this is file input styling, vanilla file input is very ugly,
+  so we hide it and use a custom file input instead.
+
+  we use a label to trigger the file input, so we can style it
+  to show preview of the selected file.
+
+  all js is provided by unova_form gem, on file_field_controller.js
+*/
+div.field[data-controller="file-field"]{
+  position: relative;
+}
+div.field[data-controller="file-field"] > input[type="file"]{
+  opacity: 0;
+  height: 1px;
+}
+div.field[data-controller="file-field"] > label{
+  display: flex;
+  flex-direction: column;
+  gap: var(--label-input-error-gap);
+  align-items: center;
+  height: 9rem;
+  cursor: pointer;
+  font-weight: bold;
+}
+div.field[data-controller="file-field"] > label > span.label{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+div.field[data-controller="file-field"] > label > span.label > span:last-child{
+  display: none;
+  text-decoration: underline;
+}
+div.field[data-controller="file-field"] > label > div.preview-container{
+  flex: 1;
+  background: var(--input-background-color);
+  position: relative;
+  border: var(--input-border-width) solid var(--input-border-color);
+  border-radius: var(--input-border-radius);
+}
+div.field[data-controller="file-field"] > label > div.preview-container > button{
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: .25rem;
+  border-radius: 9999px;
+  aspect-ratio: 1;
+  background: inherit;
+  line-height: 1;
+  transform: scale(.8);
+  filter: brightness(.9);
+  transition: filter 0.2s;
+  border: none;
+  display: none;
+}
+div.field[data-controller="file-field"] > label > div.preview-container > button:hover{
+  filter: brightness(.8);
+}
+div.field[data-controller="file-field"] > label > div.preview-container > div.preview-placeholder{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  color: var(--input-placeholder-color);
+  font-size: var(--input-font-size);
+  font-weight: var(--input-font-weight);
+  font-family: var(--input-font-family);
+  text-align: center;
+  padding: var(--input-padding);
+  box-sizing: border-box;
+}
+div.field[data-controller="file-field"] > label > div.preview-container > div.preview-placeholder > i,
+div.field[data-controller="file-field"] > label > div.preview-container > div.preview-placeholder > svg{
+  font-size: 2.25rem;
+  width: 2.25rem;
+}
+div.field[data-controller="file-field"] > label > div.preview-container > video.preview,
+div.field[data-controller="file-field"] > label > div.preview-container > img.preview,
+div.field[data-controller="file-field"] > label > div.preview-container > audio.preview{
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+  display: block;
+  object-fit: contain;
+  object-position: center;
+  border-radius: var(--input-border-radius);
+  background: var(--input-background-color);
+  cursor: auto;
+}
+div.field[data-controller="file-field"] > label > div.preview-container > video.preview[src=""],
+div.field[data-controller="file-field"] > label > div.preview-container > img.preview[src=""],
+div.field[data-controller="file-field"] > label > div.preview-container > audio.preview[src=""]{
+  display: none;
+}
+div.field[data-controller="file-field"] > label > div.preview-container > div.preview{
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border-radius: var(--input-border-radius);
+  background: var(--input-background-color);
+  cursor: auto;
+}
+div.field[data-controller="file-field"] > label > div.preview-container > div.preview:empty{
+  display: none;
+}
+div.field[data-controller="file-field"] > label > div.preview-container > div.filename{
+  text-decoration: underline;
+  font-weight: bold;
+  font-size: var(--input-font-size);
+  font-family: var(--input-font-family);
+  color: var(--input-color);
+}
+div.field[data-controller="file-field"] > input[type="file"]:placeholder-shown + label > span.label > span:last-child,
+div.field[data-controller="file-field"] > input[type="file"].filled + label > span.label > span:last-child{
+  display: block;
+}
+div.field[data-controller="file-field"] > input[type="file"]:placeholder-shown + label > div.preview-container > button,
+div.field[data-controller="file-field"] > input[type="file"].filled + label > div.preview-container > button{
+  display: flex;
+}
+div.field[data-controller="file-field"].large > label{
+  height: 12rem;
+}
+div.field[data-controller="file-field"].xlarge > label{
+  height: 16rem;
 }

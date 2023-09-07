@@ -3,10 +3,10 @@
 import StimulusController from "../lib/stimulus_controller";
 
 export default class extends StimulusController {
-  previewType: "img" | "video" | "audio" = "img"
+  previewType: "img" | "video" | "audio" | "div" = "img"
 
-  get previewEl(): HTMLMediaElement | HTMLImageElement {
-    let previewEl = this.findEl<HTMLMediaElement | HTMLImageElement>("label .preview");
+  get previewEl(): HTMLMediaElement | HTMLImageElement | HTMLDivElement {
+    let previewEl = this.findEl<HTMLMediaElement | HTMLImageElement | HTMLDivElement>("label .preview");
     if (previewEl?.tagName == this.previewType.toUpperCase()) return previewEl;
     previewEl?.remove();
     let previewContainer = this.findEl("label .preview-container");
@@ -22,41 +22,48 @@ export default class extends StimulusController {
     if (resetButton) resetButton.insertAdjacentElement("beforebegin", previewEl)
     else previewContainer.insertAdjacentElement("beforeend", previewEl)
 
-    !(previewEl instanceof HTMLImageElement) && (previewEl.controls = true);
+    !(previewEl instanceof HTMLImageElement) && !(previewEl instanceof HTMLDivElement) && (previewEl.controls = true);
 
     return previewEl
   }
 
   get preview() {
-    return (this.previewEl instanceof HTMLMediaElement) && this.previewEl.srcObject || this.previewEl.src
+    return (this.previewEl instanceof HTMLMediaElement) && this.previewEl.srcObject ||
+      !(this.previewEl instanceof HTMLDivElement) && this.previewEl.src ||
+      this.previewEl.innerText
   }
 
   set preview(v: string | MediaProvider | null) {
     let previewEl = this.previewEl;
+    if (previewEl instanceof HTMLDivElement){
+      previewEl.innerText = (v instanceof File) && v?.name || v?.toString() || "";
+      return
+    }
+    if(v == null) {
+      previewEl.src = "";
+      return
+    }
     if (previewEl instanceof HTMLMediaElement && typeof v !== "string") {
       try {
-        if (!v) previewEl.srcObject = null;
-        if (v) previewEl.srcObject = v;
+        previewEl.srcObject = v;
       } catch (err: any) {
-        if (!(err instanceof TypeError) || v instanceof MediaStream) {
-          throw err;
-        }
-        if (!v) previewEl.src = "";
-        if (v) previewEl.src = URL.createObjectURL(v);
+        if (!(err instanceof TypeError) || v instanceof MediaStream) throw err;
+        previewEl.src = v ? URL.createObjectURL(v) : "";
       }
     } else if (typeof v === "string") {
-      if (!v) previewEl.src = "";
-      if (v) previewEl.src = v;
+      previewEl.src = v || "";
+    } else if ((v instanceof File)) {
+      previewEl.src = v ? URL.createObjectURL(v) : "";
     } else {
       console.warn("Preview value type not supported")
     }
   }
 
-  get previewTextEl(): HTMLSpanElement {
-    let previewTextEl = this.findEl<HTMLSpanElement>("label span.label");
+  get previewTextEl(): HTMLDivElement {
+    let previewTextEl = this.findEl<HTMLDivElement>("label div.filename");
     if (previewTextEl) return previewTextEl;
-    previewTextEl = document.createElement("span");
-    previewTextEl.classList.add("label")
+    previewTextEl = document.createElement("div");
+    previewTextEl.classList.add("filename")
     this.findEl("label")?.insertAdjacentElement("beforeend", previewTextEl)
     return previewTextEl
   }
