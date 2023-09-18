@@ -63,7 +63,7 @@ class UnovaForm::AssetsGenerator < Rails::Generators::NamedBase
       @theme = {}
       case framework
         when "tailwind"
-          @theme[:label_color] = "color-gray-700"
+          @theme[:label_color] = "text-gray-700"
           @theme[:label_font_size] = "text-sm"
           @theme[:label_font_weight] = "font-normal"
           @theme[:label_font_family] = "font-sans"

@@ -1,0 +1,394 @@
+/*
+  This stylesheet was generated using "rails g unova_form:assets css"
+
+  You can change the values of the custom properties below to customize the theme
+  of your form, and you can feel free to override any of the css rules below
+  to customize the form.
+
+  Keep in mind that if the library is updated, and you want to re generate
+  stylesheets to match updates, your changes will be lost, so you might
+  prefer making your changes in a separate stylesheet imported after this one,
+  this advice applies to custom properties as well.
+*/
+
+/*
+  Main container of all fields, it's a flex container with a column direction
+  prefer to avoid changing this rule for unique changes, and use
+  options: {container_class: "my-container-class" } instead
+
+  on html side, error is placed first, input second, and label third,
+  they are ordered using flex order property, so this way, you can make
+  the label red if there is an error, for example, using this rule:
+  div.field > div.error ~ label{ color: red; }
+  or you can make the input red if is an error, using this rule:
+  div.field > div.error ~ input,
+  div.field > div.error ~ select,
+  div.field > div.error ~ textarea,
+  div.field > div.error ~ div.field-container > input,
+  div.field > div.error ~ div.field-container > select,
+  div.field > div.error ~ div.field-container > textarea {
+    border-color: red;
+  }
+  you can also alter label on actions made on input, using this rule:
+  div.field > input:focus ~ label,
+  div.field > select:focus ~ label,
+  div.field > textarea:focus ~ label,
+  div.field > div.field-container:has(input:focus) > label,
+  div.field > div.field-container:has(select:focus) > label,
+  div.field > div.field-container:has(textarea:focus) > label{
+    color: blue;
+  }
+  Unfortunately, :has selector is not supported by all browsers yet,
+  at the date of this comment, firefox, IE, Opera mini, UC browser,
+  firefox for android, QQ browser, BaiDu browser and KaiOS browser
+  don't support it, so if necessary, you can use javascript to add
+  a class to the field-container when input is focused for these browsers,
+  and add this selector to the rule above:
+  div.field > div.field-container.has-focus > label
+*/
+div.field {
+  @apply flex flex-col <%= @theme[:label_input_error_gap] %>;
+  > {
+
+    /*
+      this is the label of the field, with basic styling.
+      if you want add an "*" for required fields, you can use this style:
+      div.field > label[required]:after{
+        content: "*";
+        color: red;
+      }
+      prefer to avoid changing this rule for unique changes, and use
+      options: {label_class: "my-label-class" } instead
+    */
+    label {
+      @apply order-1 <%= @theme[:label_color] %> <%= @theme[:label_font_size] %> <%= @theme[:label_font_weight] %> <%= @theme[:label_font_family] %>;
+    }
+
+    /*
+      this is the error message of the field, with basic styling.
+    */
+    div.error {
+      @apply order-3 <%= @theme[:error_color] %> <%= @theme[:error_font_size] %> <%= @theme[:error_font_weight] %> <%= @theme[:error_font_family] %> <%= @theme[:error_margin_top] %> <%= @theme[:error_margin_bottom] %>;
+    }
+
+    /*
+      this is used to properly order the input, select, textarea and
+      field-container (who contains input in majority of cases)
+    */
+    input, select, textarea, div.field-container, div.field-container-full{
+      @apply order-2;
+    }
+    div.field-container-full {
+      @apply flex-1;
+    }
+
+    /*
+      this is the input, select, textarea styling, with basic styling.
+      inputs are majoritary wrapped into a div.field-container, because when you use
+      options: {icon: tag.i nil, class: "my-icon-class" } to add an icon to the input,
+      the icon is placed inside this div.field-container, absolute positioned,
+      and the input is padded to avoid the icon overlapping the input text, this way
+      allows the icon to always be correctly placed, regardless of the input type, or size.
+
+      the icon is always placed after the input, so you can use this rule to change the
+      icon color when input is focused, for example:
+      div.field > input:focus ~ .icon,
+      div.field > select:focus ~ .icon,
+      div.field > textarea:focus ~ .icon,
+      div.field > div.field-container > input:focus ~ .icon,
+      div.field > div.field-container > select:focus ~ .icon,
+      div.field > div.field-container > textarea:focus ~ .icon{
+        color: blue;
+      }
+
+      prefer to avoid changing this rule for unique changes, and use
+      options: {input_class: "my-input-class" } instead
+    */
+    input, select, textarea,
+    div.field-container > input,
+    div.field-container > select,
+    div.field-container-full > textarea{
+      @apply <%= @theme[:input_border_color] %> <%= @theme[:input_border_width] %> <%= @theme[:input_border_radius] %> <%= @theme[:input_padding] %> <%= @theme[:input_color] %> <%= @theme[:input_font_size] %> <%= @theme[:input_font_weight] %> <%= @theme[:input_font_family] %> <%= @theme[:input_background_color] %> w-full box-border;
+    }
+    input[type="hidden"], div.field-container > input[type="hidden"] {
+      @apply hidden;
+    }
+    input[type="color"], div.field-container > input[type="color"] {
+      @apply p-0;
+    }
+
+    /*
+      this is the input, select, textarea placeholder styling, with basic styling.
+      (i know that select doesn't have placeholder, but if there is a future update, we are ready)
+    */
+    input::placeholder, select::placeholder, textarea::placeholder,
+    div.field-container > input::placeholder,
+    div.field-container > select::placeholder,
+    div.field-container-full > textarea::placeholder{
+      @apply <%= @theme[:input_placeholder_color] %>;
+    }
+
+
+    /*
+      this is the container for majority of inputs, it's a flex container with a column direction
+      with the same gap as main field container. position is relative, so the icon can be
+      absolute positioned inside it.
+    */
+    div.field-container {
+      @apply relative flex flex-col <%= @theme[:label_input_error_gap] %>;
+
+      > {
+        /*
+          this is the icon, it's a flex container with content centered, to avoid the icon
+          to be misaligned.
+          the icon is absolute positioned, to be vertically centered with the input, for
+          this reason, the input is padded to avoid the icon overlapping the input text.
+
+          prefer to avoid changing this rule for unique changes, and use
+          options: {icon_class: "my-icon-class" } instead
+        */
+        .icon {
+          @apply absolute top-1/2 transform -translate-y-1/2 <%= @theme[:icon_text_size] %> <%= @theme[:icon_size] %> flex items-center justify-center;
+
+          &:not(.left) {
+            @apply <%= @theme[:icon_right_pos] %>;
+          }
+
+          &.left {
+            @apply <%= @theme[:icon_left_pos] %>;
+          }
+        }
+
+        textarea ~ .icon {
+          /* input_padding is a small fix to align icon on top of textarea */
+          @apply top-0 <%= @theme[:input_padding] %> pl-0 pr-0 transform-none;
+        }
+
+        input {
+          &.with-icon {
+            @apply <%= @theme[:input_icon_right_padding] %>;
+            &-left {
+              @apply <%= @theme[:input_icon_left_padding] %>;
+            }
+          }
+        }
+
+        /*
+          for special fields like checkboxes/radios select, or boolean, field-container
+          has one or many .field-checkboxes-item, these will align checkboxes/radios
+          with their labels and add a gap between them.
+        */
+        div.field-checkboxes-item {
+          @apply flex flex-row items-center <%= @theme[:label_input_error_gap] %>;
+          > input {
+            /*
+              this is the checkbox styling, with basic styling.
+
+              prefer to avoid changing this rule for unique changes, and use
+              options: {input_class: "my-input-class" } instead
+            */
+            &[type="checkbox"] {
+              @apply <%= @theme[:checkbox_color] %> <%= @theme[:checkbox_size] %> <%= @theme[:checkbox_border_color] %> <%= @theme[:checkbox_border_width] %> <%= @theme[:checkbox_border_radius] %> <%= @theme[:checkbox_size] %> accent-current m-0;
+            }
+
+            /*
+              this is the radio styling, with basic styling.
+
+              prefer to avoid changing this rule for unique changes, and use
+              options: {input_class: "my-input-class" } instead
+            */
+            &[type="radio"] {
+              @apply <%= @theme[:radio_color] %> <%= @theme[:radio_size] %> <%= @theme[:radio_border_color] %> <%= @theme[:radio_border_width] %> <%= @theme[:radio_border_radius] %> <%= @theme[:radio_size] %> accent-current m-0;
+            }
+          }
+        }
+      }
+    }
+  }
+
+
+  /*
+    this is the multiselect styling, vanilla multiselect is very ugly,
+    so we hide it and use a custom multiselect instead, wo will be generated
+    using js controller provided by unova_form gem.
+  */
+  &[data-controller="multiselect"] {
+    @apply relative;
+
+    > {
+      select[multiple] {
+        @apply opacity-0 pointer-events-none absolute top-0 left-0;
+      }
+
+      label {
+        @apply block;
+      }
+
+      div.multiselect-container {
+        @apply order-2 relative <%= @theme[:input_background_color] %> <%= @theme[:input_border_color] %> <%= @theme[:input_border_width] %> <%= @theme[:input_border_radius] %>;
+
+        > div {
+          &.multiselect-dropdown {
+            @apply max-h-[20vh] <%= @theme[:input_background_color] %> <%= @theme[:input_border_radius] %> absolute left-0 right-0 overflow-y-auto opacity-0 pointer-events-none <%= @theme[:input_padding] %> z-10 shadow-md;
+
+            * {
+              @apply pointer-events-none;
+            }
+
+            &.show {
+              @apply opacity-100 pointer-events-auto;
+
+              * {
+                @apply pointer-events-auto;
+              }
+            }
+
+            button {
+              @apply block w-full text-left <%= @theme[:input_padding] %> border-0 <%= @theme[:input_border_radius] %> <%= @theme[:input_background_color] %> <%= @theme[:input_color] %> <%= @theme[:input_font_size] %> <%= @theme[:input_font_weight] %> <%= @theme[:input_font_family] %> brightness-100 transition-all duration-200 cursor-pointer;
+
+              &:hover {
+                @apply brightness-90;
+              }
+            }
+          }
+
+          &.multiselect-selected-element-container {
+            @apply flex flex-row flex-wrap <%= @theme[:label_input_error_gap] %> <%= @theme[:input_padding] %> items-center <%= @theme[:label_font_family] %>;
+
+            > {
+              span {
+                @apply <%= @theme[:input_placeholder_color] %>;
+              }
+
+              div.multiselect-selected-element {
+                @apply flex flex-row items-center <%= @theme[:label_input_error_gap] %> <%= @theme[:input_background_color] %> <%= @theme[:input_border_radius] %> brightness-90 px-1 py-0.5;
+
+                button.multiselect-unselect-btn {
+                  @apply flex items-center justify-center <%= @theme[:input_background_color] %> brightness-75 rounded-full border-0 aspect-1 transition-all duration-200 leading-none cursor-pointer scale-75;
+
+                  &:hover {
+                    @apply brightness-50;
+                  }
+                }
+              }
+            }
+          }
+
+          &.input-container {
+            @apply flex;
+
+            > input {
+              @apply border-0 <%= @theme[:input_padding] %> <%= @theme[:input_background_color] %> <%= @theme[:input_color] %> <%= @theme[:input_font_size] %> <%= @theme[:input_font_weight] %> <%= @theme[:input_font_family] %> w-full py-0 box-border outline-none h-0 transition-all duration-200;
+
+              &::placeholder {
+                @apply <%= @theme[:input_placeholder_color] %>;
+              }
+
+              &.show {
+                @apply h-10 <%= @theme[:input_padding] %>;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /*
+    this is file input styling, vanilla file input is very ugly,
+    so we hide it and use a custom file input instead.
+
+    we use a label to trigger the file input, so we can style it
+    to show preview of the selected file.
+
+    all js is provided by unova_form gem, on file_field_controller.js
+  */
+  &[data-controller="file-field"] {
+    @apply relative;
+
+    > {
+      input[type="file"] {
+        @apply opacity-0 h-px;
+      }
+
+      label {
+        @apply flex flex-col <%= @theme[:label_input_error_gap] %> items-center h-36 cursor-pointer font-bold;
+
+        > {
+          span.label {
+            @apply flex justify-between items-center;
+
+            > span:last-child {
+              @apply hidden underline;
+            }
+          }
+
+          div.preview-container {
+            @apply flex-1 <%= @theme[:input_background_color] %> relative <%= @theme[:input_border_width] %> <%= @theme[:input_border_color] %> <%= @theme[:input_border_radius] %>;
+
+            > {
+              button {
+                @apply absolute top-0 right-0 p-1 rounded-full aspect-1 bg-inherit leading-none scale-75 brightness-90 transition-all duration-200 border-0 hidden;
+
+                &:hover {
+                  @apply brightness-75;
+                }
+              }
+
+              div.preview-placeholder {
+                @apply flex items-center justify-center h-full w-full <%= @theme[:input_placeholder_color] %> <%= @theme[:input_font_size] %> <%= @theme[:input_font_weight] %> <%= @theme[:input_font_family] %> text-center <%= @theme[:input_padding] %> box-border;
+
+                > {
+                  i, svg {
+                    font-size: 2em;
+                    width: 2em;
+                  }
+                }
+              }
+
+              video.preview, img.preview, audio.preview {
+                @apply w-full h-full absolute inset-0 block object-contain object-center <%= @theme[:input_border_radius] %> <%= @theme[:input_background_color] %> cursor-auto;
+              }
+
+              video.preview[src=""], img.preview[src=""], audio.preview[src=""] {
+                @apply hidden;
+              }
+
+              div {
+                &.preview {
+                  @apply w-full h-full absolute inset-0 flex items-center justify-center <%= @theme[:input_border_radius] %> <%= @theme[:input_background_color] %> cursor-auto;
+
+                  &:empty {
+                    @apply hidden;
+                  }
+                }
+
+                &.filename {
+                  @apply underline font-bold <%= @theme[:input_font_size] %> <%= @theme[:input_font_family] %> <%= @theme[:input_color] %>;
+                }
+              }
+            }
+          }
+        }
+      }
+
+      input[type="file"] {
+        &:placeholder-shown + label > span.label > span:last-child, &.filled + label > span.label > span:last-child {
+          @apply block;
+        }
+
+        &:placeholder-shown + label > div.preview-container > button, &.filled + label > div.preview-container > button {
+          @apply flex;
+        }
+      }
+    }
+
+    &.large > label {
+      @apply h-48;
+    }
+
+    &.xlarge > label {
+      @apply h-64;
+    }
+  }
+}

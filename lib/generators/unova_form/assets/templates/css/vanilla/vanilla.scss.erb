@@ -1,0 +1,655 @@
+/*
+  This stylesheet was generated using "rails g unova_form:assets css"
+
+  You can change the values of the custom properties below to customize the theme
+  of your form, and you can feel free to override any of the css rules below
+  to customize the form.
+
+  Keep in mind that if the library is updated, and you want to re generate
+  stylesheets to match updates, your changes will be lost, so you might
+  prefer making your changes in a separate stylesheet imported after this one,
+  this advice applies to custom properties as well.
+*/
+
+:root{
+  --label-color: <%= @theme[:label_color] %>;
+  --label-font-size: <%= @theme[:label_font_size] %>;
+  --label-font-weight: <%= @theme[:label_font_weight] %>;
+  --label-font-family: <%= @theme[:label_font_family] %>;
+  --label-input-error-gap: <%= @theme[:label_input_error_gap] %>;
+  --input-border-color: <%= @theme[:input_border_color] %>;
+  --input-border-width: <%= @theme[:input_border_width] %>;
+  --input-border-radius: <%= @theme[:input_border_radius] %>;
+  --input-padding: <%= @theme[:input_padding] %>;
+  --input-color: <%= @theme[:input_color] %>;
+  --input-font-size: <%= @theme[:input_font_size] %>;
+  --input-font-weight: <%= @theme[:input_font_weight] %>;
+  --input-font-family: <%= @theme[:input_font_family] %>;
+  --input-background-color: <%= @theme[:input_background_color] %>;
+  --input-placeholder-color: <%= @theme[:input_placeholder_color] %>;
+  --input-focus-border-color: <%= @theme[:input_focus_border_color] %>;
+  --error-color: <%= @theme[:error_color] %>;
+  --error-font-size: <%= @theme[:error_font_size] %>;
+  --error-font-weight: <%= @theme[:error_font_weight] %>;
+  --error-font-family: <%= @theme[:error_font_family] %>;
+  --error-margin-top: <%= @theme[:error_margin_top] %>;
+  --error-margin-bottom: <%= @theme[:error_margin_bottom] %>;
+  --checkbox-color: <%= @theme[:checkbox_color] %>;
+  --checkbox-size: <%= @theme[:checkbox_size] %>;
+  --checkbox-border-color: <%= @theme[:checkbox_border_color] %>;
+  --checkbox-border-width: <%= @theme[:checkbox_border_width] %>;
+  --checkbox-border-radius: <%= @theme[:checkbox_border_radius] %>;
+  --radio-color: <%= @theme[:radio_color] %>;
+  --radio-size: <%= @theme[:radio_size] %>;
+  --radio-border-color: <%= @theme[:radio_border_color] %>;
+  --radio-border-width: <%= @theme[:radio_border_width] %>;
+  --radio-border-radius: <%= @theme[:radio_border_radius] %>;
+  --icon-text-size: <%= @theme[:icon_text_size] %>;
+  --icon-size: <%= @theme[:icon_size] %>;
+  --icon-left-pos: <%= @theme[:icon_left_pos] %>;
+  --icon-right-pos: <%= @theme[:icon_right_pos] %>;
+  --input-icon-left-padding: <%= @theme[:input_icon_left_padding] %>;
+  --input-icon-right-padding: <%= @theme[:input_icon_right_padding] %>;
+}
+
+/*
+  Main container of all fields, it's a flex container with a column direction
+  prefer to avoid changing this rule for unique changes, and use
+  options: {container_class: "my-container-class" } instead
+
+  on html side, error is placed first, input second, and label third,
+  they are ordered using flex order property, so this way, you can make
+  the label red if there is an error, for example, using this rule:
+  div.field > div.error ~ label{ color: red; }
+  or you can make the input red if is an error, using this rule:
+  div.field > div.error ~ input,
+  div.field > div.error ~ select,
+  div.field > div.error ~ textarea,
+  div.field > div.error ~ div.field-container > input,
+  div.field > div.error ~ div.field-container > select,
+  div.field > div.error ~ div.field-container > textarea {
+    border-color: red;
+  }
+  you can also alter label on actions made on input, using this rule:
+  div.field > input:focus ~ label,
+  div.field > select:focus ~ label,
+  div.field > textarea:focus ~ label,
+  div.field > div.field-container:has(input:focus) > label,
+  div.field > div.field-container:has(select:focus) > label,
+  div.field > div.field-container:has(textarea:focus) > label{
+    color: blue;
+  }
+  Unfortunately, :has selector is not supported by all browsers yet,
+  at the date of this comment, firefox, IE, Opera mini, UC browser,
+  firefox for android, QQ browser, BaiDu browser and KaiOS browser
+  don't support it, so if necessary, you can use javascript to add
+  a class to the field-container when input is focused for these browsers,
+  and add this selector to the rule above:
+  div.field > div.field-container.has-focus > label
+*/
+div.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--label-input-error-gap);
+  > {
+
+    /*
+      this is the label of the field, with basic styling.
+      if you want add an "*" for required fields, you can use this style:
+      div.field > label[required]:after{
+        content: "*";
+        color: red;
+      }
+      prefer to avoid changing this rule for unique changes, and use
+      options: {label_class: "my-label-class" } instead
+    */
+    label {
+      order: 0;
+      color: var(--label-color);
+      font-size: var(--label-font-size);
+      font-weight: var(--label-font-weight);
+      font-family: var(--label-font-family);
+    }
+
+    /*
+      this is the error message of the field, with basic styling.
+    */
+    div.error {
+      order: 2;
+      color: var(--error-color);
+      font-size: var(--error-font-size);
+      font-weight: var(--error-font-weight);
+      font-family: var(--error-font-family);
+      margin-top: var(--error-margin-top);
+      margin-bottom: var(--error-margin-bottom);
+    }
+
+    /*
+      this is used to properly order the input, select, textarea and
+      field-container (who contains input in majority of cases)
+    */
+    input, select, textarea, div.field-container, div.field-container-full{
+      order: 1;
+    }
+    div.field-container-full {
+      flex: 1;
+    }
+
+    /*
+      this is the input, select, textarea styling, with basic styling.
+      inputs are majoritary wrapped into a div.field-container, because when you use
+      options: {icon: tag.i nil, class: "my-icon-class" } to add an icon to the input,
+      the icon is placed inside this div.field-container, absolute positioned,
+      and the input is padded to avoid the icon overlapping the input text, this way
+      allows the icon to always be correctly placed, regardless of the input type, or size.
+
+      the icon is always placed after the input, so you can use this rule to change the
+      icon color when input is focused, for example:
+      div.field > input:focus ~ .icon,
+      div.field > select:focus ~ .icon,
+      div.field > textarea:focus ~ .icon,
+      div.field > div.field-container > input:focus ~ .icon,
+      div.field > div.field-container > select:focus ~ .icon,
+      div.field > div.field-container > textarea:focus ~ .icon{
+        color: blue;
+      }
+
+      prefer to avoid changing this rule for unique changes, and use
+      options: {input_class: "my-input-class" } instead
+    */
+    input, select, textarea {
+      border-color: var(--input-border-color);
+      border-width: var(--input-border-width);
+      border-radius: var(--input-border-radius);
+      padding: var(--input-padding);
+      color: var(--input-color);
+      font-size: var(--input-font-size);
+      font-weight: var(--input-font-weight);
+      font-family: var(--input-font-family);
+      background-color: var(--input-background-color);
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    div {
+      &.field-container > {
+        input, select {
+          border-color: var(--input-border-color);
+          border-width: var(--input-border-width);
+          border-radius: var(--input-border-radius);
+          padding: var(--input-padding);
+          color: var(--input-color);
+          font-size: var(--input-font-size);
+          font-weight: var(--input-font-weight);
+          font-family: var(--input-font-family);
+          background-color: var(--input-background-color);
+          width: 100%;
+          box-sizing: border-box;
+        }
+      }
+
+      &.field-container-full > textarea {
+        border-color: var(--input-border-color);
+        border-width: var(--input-border-width);
+        border-radius: var(--input-border-radius);
+        padding: var(--input-padding);
+        color: var(--input-color);
+        font-size: var(--input-font-size);
+        font-weight: var(--input-font-weight);
+        font-family: var(--input-font-family);
+        background-color: var(--input-background-color);
+        width: 100%;
+        box-sizing: border-box;
+      }
+    }
+
+    input[type="hidden"], div.field-container > input[type="hidden"] {
+      display: none;
+    }
+
+    input[type="color"], div.field-container > input[type="color"] {
+      padding: 0;
+    }
+
+    /*
+      this is the input, select, textarea placeholder styling, with basic styling.
+      (i know that select doesn't have placeholder, but if there is a future update, we are ready)
+    */
+    input::placeholder, select::placeholder, textarea::placeholder,
+    div.field-container > input::placeholder,
+    div.field-container > select::placeholder,
+    div.field-container-full > textarea::placeholder{
+      color: var(--input-placeholder-color);
+    }
+
+
+    /*
+      this is the container for majority of inputs, it's a flex container with a column direction
+      with the same gap as main field container. position is relative, so the icon can be
+      absolute positioned inside it.
+    */
+    div.field-container {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: var(--label-input-error-gap);
+
+      > {
+        /*
+          this is the icon, it's a flex container with content centered, to avoid the icon
+          to be misaligned.
+          the icon is absolute positioned, to be vertically centered with the input, for
+          this reason, the input is padded to avoid the icon overlapping the input text.
+
+          prefer to avoid changing this rule for unique changes, and use
+          options: {icon_class: "my-icon-class" } instead
+        */
+        .icon {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          right: var(--icon-right-pos);
+          font-size: var(--icon-text-size);
+          width: var(--icon-size);
+          height: var(--icon-size);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+
+          &.left {
+            left: var(--icon-left-pos);
+            right: unset;
+          }
+        }
+
+        textarea ~ .icon {
+          top: 0;
+          padding: var(--input-padding); /* small fix to align icon on top of textarea */
+          padding-left: unset;
+          padding-right: unset;
+          transform: unset;
+        }
+
+        input {
+          &.with-icon {
+            padding-right: var(--input-icon-right-padding);
+            &-left {
+              padding-left: var(--input-icon-left-padding);
+            }
+          }
+        }
+
+        /*
+          for special fields like checkboxes/radios select, or boolean, field-container
+          has one or many .field-checkboxes-item, these will align checkboxes/radios
+          with their labels and add a gap between them.
+        */
+        div.field-checkboxes-item {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          gap: var(--label-input-error-gap);
+
+          > input {
+
+            /*
+              this is the checkbox styling, with basic styling.
+
+              prefer to avoid changing this rule for unique changes, and use
+              options: {input_class: "my-input-class" } instead
+            */
+            &[type="checkbox"] {
+              color: var(--checkbox-color);
+              width: var(--checkbox-size);
+              height: var(--checkbox-size);
+              min-width: var(--checkbox-size);
+              border-color: var(--checkbox-border-color);
+              border-width: var(--checkbox-border-width);
+              border-radius: var(--checkbox-border-radius);
+              accent-color: currentColor;
+              margin: 0;
+            }
+
+            /*
+              this is the radio styling, with basic styling.
+
+              prefer to avoid changing this rule for unique changes, and use
+              options: {input_class: "my-input-class" } instead
+            */
+            &[type="radio"] {
+              color: var(--radio-color);
+              width: var(--radio-size);
+              min-width: var(--radio-size);
+              height: var(--radio-size);
+              border-color: var(--radio-border-color);
+              border-width: var(--radio-border-width);
+              border-radius: var(--radio-border-radius);
+              accent-color: currentColor;
+              margin: 0;
+            }
+          }
+        }
+      }
+    }
+  }
+
+
+  /*
+    this is the multiselect styling, vanilla multiselect is very ugly,
+    so we hide it and use a custom multiselect instead, wo will be generated
+    using js controller provided by unova_form gem.
+  */
+  &[data-controller="multiselect"] {
+    position: relative;
+
+    > {
+      select[multiple] {
+        opacity: 0;
+        pointer-events: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+
+      label {
+        display: block;
+      }
+
+      div.multiselect-container {
+        order: 1;
+        position: relative;
+        background: var(--input-background-color);
+        border: var(--input-border-width) solid var(--input-border-color);
+        border-radius: var(--input-border-radius);
+
+        > div {
+          &.multiselect-dropdown {
+            max-height: 20vh;
+            background: inherit;
+            border-radius: inherit;
+            position: absolute;
+            top: calc(100% + .125rem);
+            left: 0;
+            right: 0;
+            overflow-y: auto;
+            opacity: 0;
+            pointer-events: none;
+            padding: var(--input-padding);
+            z-index: 10;
+            box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.2);
+
+            * {
+              pointer-events: none;
+            }
+
+            &.show {
+              opacity: 1;
+              pointer-events: auto;
+
+              * {
+                pointer-events: auto;
+              }
+            }
+
+            button {
+              display: block;
+              width: 100%;
+              text-align: left;
+              padding: var(--input-padding);
+              border: none;
+              border-radius: var(--input-border-radius);
+              background: inherit;
+              color: var(--input-color);
+              font-size: var(--input-font-size);
+              font-weight: var(--input-font-weight);
+              font-family: var(--input-font-family);
+              filter: brightness(1);
+              transition: filter 0.2s;
+              cursor: pointer;
+
+              &:hover {
+                filter: brightness(0.9);
+              }
+            }
+          }
+
+          &.multiselect-selected-element-container {
+            > {
+              span {
+                color: var(--input-placeholder-color);
+
+                &.hidden {
+                  display: none;
+                }
+              }
+
+              div.multiselect-selected-element {
+                display: flex;
+                align-items: center;
+                gap: var(--label-input-error-gap);
+                background: var(--input-background-color);
+                border-radius: var(--input-border-radius);
+                padding: .125rem .25rem;
+                filter: brightness(0.9);
+
+                button.multiselect-unselect-btn {
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  background: inherit;
+                  filter: brightness(0.8);
+                  border-radius: 9999px;
+                  border: none;
+                  aspect-ratio: 1;
+                  transition: filter 0.2s;
+                  line-height: 1;
+                  cursor: pointer;
+                  transform: scale(0.8);
+
+                  &:hover {
+                    filter: brightness(0.7);
+                  }
+                }
+              }
+            }
+
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--label-input-error-gap);
+            padding: var(--input-padding);
+            align-items: center;
+            font-family: var(--input-font-family);
+          }
+
+          &.input-container {
+            display: flex;
+
+            > input {
+              border: none;
+              background: inherit;
+              color: var(--input-color);
+              font-size: var(--input-font-size);
+              font-weight: var(--input-font-weight);
+              font-family: var(--input-font-family);
+              padding: var(--input-padding);
+              padding-top: 0;
+              padding-bottom: 0;
+              width: 100%;
+              box-sizing: border-box;
+              height: 0;
+              transition: height 0.2s, padding 0.2s;
+              outline: none;
+
+              &::placeholder {
+                color: var(--input-placeholder-color);
+              }
+
+              &.show {
+                height: 2rem;
+                padding: var(--input-padding);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /*
+    this is file input styling, vanilla file input is very ugly,
+    so we hide it and use a custom file input instead.
+
+    we use a label to trigger the file input, so we can style it
+    to show preview of the selected file.
+
+    all js is provided by unova_form gem, on file_field_controller.js
+  */
+  &[data-controller="file-field"] {
+    position: relative;
+
+    > {
+      input[type="file"] {
+        opacity: 0;
+        height: 1px;
+      }
+
+      label {
+        display: flex;
+        flex-direction: column;
+        gap: var(--label-input-error-gap);
+        align-items: center;
+        height: 9rem;
+        cursor: pointer;
+        font-weight: bold;
+
+        > {
+          span.label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            > span:last-child {
+              display: none;
+              text-decoration: underline;
+            }
+          }
+
+          div.preview-container {
+            flex: 1;
+            background: var(--input-background-color);
+            position: relative;
+            border: var(--input-border-width) solid var(--input-border-color);
+            border-radius: var(--input-border-radius);
+
+            > {
+              button {
+                position: absolute;
+                top: 0;
+                right: 0;
+                padding: .25rem;
+                border-radius: 9999px;
+                aspect-ratio: 1;
+                background: inherit;
+                line-height: 1;
+                transform: scale(0.8);
+                filter: brightness(0.9);
+                transition: filter 0.2s;
+                border: none;
+                display: none;
+
+                &:hover {
+                  filter: brightness(0.8);
+                }
+              }
+
+              div.preview-placeholder {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 100%;
+                width: 100%;
+                color: var(--input-placeholder-color);
+                font-size: var(--input-font-size);
+                font-weight: var(--input-font-weight);
+                font-family: var(--input-font-family);
+                text-align: center;
+                padding: var(--input-padding);
+                box-sizing: border-box;
+
+                > {
+                  i, svg {
+                    font-size: 2.25rem;
+                    width: 2.25rem;
+                  }
+                }
+              }
+
+              video.preview, img.preview, audio.preview {
+                width: 100%;
+                height: 100%;
+                position: absolute;
+                inset: 0;
+                display: block;
+                object-fit: contain;
+                object-position: center;
+                border-radius: var(--input-border-radius);
+                background: var(--input-background-color);
+                cursor: auto;
+              }
+
+              video.preview[src=""], img.preview[src=""], audio.preview[src=""] {
+                display: none;
+              }
+
+              div {
+                &.preview {
+                  width: 100%;
+                  height: 100%;
+                  position: absolute;
+                  inset: 0;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  text-align: center;
+                  border-radius: var(--input-border-radius);
+                  background: var(--input-background-color);
+                  cursor: auto;
+
+                  &:empty {
+                    display: none;
+                  }
+                }
+
+                &.filename {
+                  text-decoration: underline;
+                  font-weight: bold;
+                  font-size: var(--input-font-size);
+                  font-family: var(--input-font-family);
+                  color: var(--input-color);
+                }
+              }
+            }
+          }
+        }
+      }
+
+      input[type="file"] {
+        &:placeholder-shown + label > span.label > span:last-child, &.filled + label > span.label > span:last-child {
+          display: block;
+        }
+
+        &:placeholder-shown + label > div.preview-container > button, &.filled + label > div.preview-container > button {
+          display: flex;
+        }
+      }
+    }
+
+    &.large > label {
+      height: 12rem;
+    }
+
+    &.xlarge > label {
+      height: 16rem;
+    }
+  }
+}
