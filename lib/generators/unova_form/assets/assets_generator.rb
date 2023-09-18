@@ -254,14 +254,14 @@ class UnovaForm::AssetsGenerator < Rails::Generators::NamedBase
         else
           append_to_file application_js, "//= require unova_form\n"
         end
+      else
+        say ""
+        say "=============================================================="
+        say "                      Impotant note:"
+        say "You need stimulus and stimulus-use to be installed on your app"
+        say "JS code use modern javascript, so you may need to transpile it"
+        say "=============================================================="
       end
-
-      say ""
-      say "=============================================================="
-      say "                      Impotant note:"
-      say "You need stimulus and stimulus-use to be installed on your app"
-      say "JS code use modern javascript, so you may need to transpile it"
-      say "=============================================================="
     end
 
 end

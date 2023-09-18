@@ -6,6 +6,13 @@ module UnovaForm
 
     private
       def allowed_asset_types: -> Array[String]
+
+      def allowed_javascript_frameworks: -> Array[String]
+      def allowed_javascript_schemas: -> Array[String]
+      def default_javascript_dests: -> Array[String]
+      def existing_javascript_dest: -> String?
+      def javascripts: -> void
+
       def stylesheets: -> void
       def allowed_stylesheet_frameworks: -> Array[String]
       def allowed_stylesheet_schemas: -> Array[String]
