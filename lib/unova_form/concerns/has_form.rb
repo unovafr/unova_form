@@ -64,9 +64,9 @@ module UnovaForm
             end
 
             validates method, **final_validators unless final_validators.except(:on, :allow_nil).empty?
-            validates_presence_of method, if: -> { !persisted? } if field.required && !field.required_if_persisted && !is_confirmation
-            validates_presence_of method, if: -> { eval(method.to_s.gsub(/_confirmation$/, "")).present? } if is_confirmation
-            validates_confirmation_of method, if: -> { eval(method.to_s).present? } if field.has_confirmation
+            validates_presence_of method, if: -> { !persisted? }, on: final_validators[:on] if field.required && !field.required_if_persisted && !is_confirmation
+            validates_presence_of method, if: -> { eval(method.to_s.gsub(/_confirmation$/, "")).present? }, on: final_validators[:on] if is_confirmation
+            validates_confirmation_of method, if: -> { eval(method.to_s).present? }, on: final_validators[:on] if field.has_confirmation
           end
         end
       end
