@@ -20,6 +20,22 @@ module UnovaForm
         file: "file-field",
       }
 
+      # Used to generate random id for fields to be able to link label to input if no id is given
+      #
+      # @return [String] random id string
+      def random_id = (0...50).map { ("a".."z").to_a[rand(26)] }.join
+
+      # Used to transform strings like "Hello   wOrld" into "hello world" that is more suitable for html attributes
+      #
+      # @param [String, NilClass] string string to be beautified
+      # @return [String] beautified string
+      def beautify_string_attr(string) = string.gsub(/\s+/, " ").downcase
+
+      # Used to transform array of strings like ["Hello   wOrld", "  foo"] into "hello world foo"
+      # from array for usefulness lower-cased and beautified to be more suitable for html attributes
+      def array_attr(array) = array
+                                .filter_map { |s| beautify_string_attr(s) if s.present? }.join(" ")
+
       # Used to remove stimulus controller for input field type
       #
       # @param [Symbol] type
@@ -325,7 +341,7 @@ module UnovaForm
       # @return [ActionView::Helpers::TagHelper::TagBuilder, ActiveSupport::SafeBuffer]
       # noinspection RailsI18nInspection
       def file_field(label, id: "", value_type: :other, name: nil, error: nil, value: nil, value_url: nil, required: nil, disabled: nil, icon: nil, remove_icon: nil, accept: nil, container_class: "large", input_class: nil, label_class: nil, controller: nil, **options)
-        id = id == "" ? (0...50).map { ("a".."z").to_a[rand(26)] }.join : id
+        id ||= random_id
 
         icon ||= FILE_FIELD_DEFAULT_ICON
         remove_icon ||= "X".html_safe.freeze
@@ -367,23 +383,6 @@ module UnovaForm
       end
 
       module_function :input_field, :boolean_field, :file_field, :select_field
-
-      private
-        # Used to generate random id for fields to be able to link label to input if no id is given
-        #
-        # @return [String] random id string
-        def random_id = (0...50).map { ("a".."z").to_a[rand(26)] }.join
-
-        # Used to transform strings like "Hello   wOrld" into "hello world" that is more suitable for html attributes
-        #
-        # @param [String, NilClass] string string to be beautified
-        # @return [String] beautified string
-        def beautify_string_attr(string) = string.gsub(/\s+/, " ").downcase
-
-        # Used to transform array of strings like ["Hello   wOrld", "  foo"] into "hello world foo"
-        # from array for usefulness lower-cased and beautified to be more suitable for html attributes
-        def array_attr(array) = array
-          .filter_map { |s| beautify_string_attr(s) if s.present? }.join(" ")
     end
   end
 end
