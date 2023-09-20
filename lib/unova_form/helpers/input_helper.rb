@@ -382,7 +382,7 @@ module UnovaForm
         end
       end
 
-      module_function :input_field, :boolean_field, :file_field, :select_field
+      module_function :input_field, :boolean_field, :file_field, :select_field, :field_container, :controllers_for_types, :controller_for_type, :add_controller_for_type, :remove_controller_for_type, :data_controller_of, :random_id, :beautify_string_attr, :array_attr
     end
   end
 end
