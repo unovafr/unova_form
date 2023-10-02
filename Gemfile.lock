@@ -3,7 +3,7 @@ PATH
   specs:
     unova_form (0.1.0)
       rails (~> 7)
-      timeliness (~> 0.4)
+      validates_timeliness (~> 7.0.0.beta2)
       zeitwerk (~> 2)
 
 GEM
@@ -244,6 +244,9 @@ GEM
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     unicode-display_width (2.4.2)
+    validates_timeliness (7.0.0.beta2)
+      activemodel (>= 7.0.0, < 8)
+      timeliness (>= 0.3.10, < 1)
     websocket-driver (0.7.6)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)

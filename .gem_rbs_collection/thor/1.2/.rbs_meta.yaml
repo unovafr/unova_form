@@ -1,6 +1,6 @@
 ---
-name: railties
-version: '6.0'
+name: thor
+version: '1.2'
 source:
   type: git
   name: ruby/gem_rbs_collection

@@ -62,6 +62,14 @@ module UnovaForm
             elsif final_validators[:format].is_a?(Hash)
               final_validators[:format] = final_validators[:format].merge(allow_blank: true)
             end
+            if final_validators[:timeliness].present?
+              begin
+                const_get(:TimelinessValidator).present?
+              rescue
+                require "validates_timeliness"
+                ValidatesTimeliness.setup { |config| }
+              end
+            end
 
             validates method, **final_validators unless final_validators.except(:on, :allow_nil).empty?
             validates_presence_of method, if: -> { !persisted? }, on: final_validators[:on] if field.required && !field.required_if_persisted && !is_confirmation
