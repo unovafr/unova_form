@@ -104,7 +104,7 @@ module UnovaForm
         forms[@current_form_context] ||= UnovaForm::Classes::Form.new({}, [])
         forms[@current_form_context].contexts.delete(inherits_from) if inherits_from.present?
         ([validation_context] + (include_contexts || [])).each { |ctx| forms[@current_form_context].contexts << ctx }
-        yield
+        yield if block_given?
         if include_contexts.is_a?(Array)
           include_contexts&.each { |ctx| forms[ctx] = forms[@current_form_context] }
         end
