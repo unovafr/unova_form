@@ -1,19 +1,43 @@
 # frozen_string_literal: true
 
 module UnovaForm
-  # noinspection RubyTooManyMethodsInspection
+  # =Global builder for UnovaForm
+  # will build fields based on model's declared forms
+  #
+  # Inspections, ignore them:
+  # noinspection ThisExpressionReferencesGlobalObjectJS will be on oninvalid, this will be the input
+  # noinspection RubyTooManyMethodsInspection wants to keep all methods here because all are utils and +class+ is simpler like this for me
   class Builder < ActionView::Helpers::FormBuilder
+    AUTOVALIDATE_JS_STRING = <<~JS.gsub(/\s+/, " ").strip.freeze
+      let s=this;
+      for (const [r, m] of Object.entries(JSON.parse(s.dataset.patternMessages)))
+        if (!(new RegExp(r)).test(s.value)){ if(s.validationMessage !== m) {
+          s.setCustomValidity(m); s.reportValidity();} return;
+        } if(s.validity.customError){
+          s.setCustomValidity('');
+          s.reportValidity();
+          if(s.form && s.form.checkValidity()){
+            s.form.submit()
+          } return;
+        }
+    JS
     delegate :content_tag, :tag, :safe_join, :rails_direct_uploads_url, :capture, :concat, to: :@template
 
     # @return [Module<UnovaForm::Helpers::InputHelper>]
     def self.input_helper
-      @helper ||= UnovaForm::Helpers::InputHelper
-      @helper
+      @input_helper ||= UnovaForm::Helpers::InputHelper
     end
 
+    # =This method allows to override default input helper
+    # Usage:
+    #   UnovaForm::Builder.input_helper = MyCustomInputHelper
+    #
+    # @param [Module<UnovaForm::Helpers::InputHelper>] val
     # @return [Module<UnovaForm::Helpers::InputHelper>]
-    def self.input_helper=(v)
-      @helper = v
+    def self.input_helper=(val)
+      input_helper.instance_methods.each { |m| undef_method m }
+      include val
+      @input_helper = val
     end
 
     include self.input_helper
@@ -23,7 +47,7 @@ module UnovaForm
       object.class.forms
     end
 
-    # Add all fields to dom based on stored form with given context
+    # =Add all fields to dom based on stored form with given context
     # For example:
     #   Having a model +User+ with:
     #     def_forms do
@@ -50,7 +74,7 @@ module UnovaForm
     #       <%= form.fields :update %>
     #     <% end %>
     #
-    #   You also can customize your sructure update form with:
+    #   You also can customize your structure update form with:
     #     <%= uform_for @user do |form| %>
     #       <div class="custom">
     #         <%= form.fields :update, only: :email %>
@@ -86,24 +110,39 @@ module UnovaForm
     def fields(validation_context = :base, omit: nil, only: nil, no_labels: false, options_for: {}, **options)
       check_form(validation_context)
 
-      forms[validation_context].fields
-        .filter_map { |method, field|
-          if (omit.nil? || (omit != method && (!omit.is_a?(Array) || omit.exclude?(method)))) &&
-            (only.nil? || only == method || (only.is_a?(Array) && only.include?(method)))
-            self.current_field = field
-            to_r = self.field method, validation_context:, no_label: no_labels, **(options_for[method] ? { **options, **options_for[method] } : options)
-            self.current_field = nil
-            to_r
-          end
-        }.join.html_safe
+      # allow field if not in omit and if only is nil or only include field
+      safe_join(
+        forms[validation_context].fields.filter_map do |method, _|
+          next if !filter_has_method?(omit, method) && (only.nil? || filter_has_method?(only, method))
+
+          field method, validation_context:, no_label: no_labels, **options, **options_for[method].to_h
+        end
+      )
     end
 
+    # =Add one field to dom based on stored form with given context
+    #
+    # Similar to #fields used like this:
+    #   <%= uform_for @user do |form| %>
+    #     <%= form.fields :update, only: :email %> # => will only generate email field, on update form context
+    #   <% end %>
+    # using #field method:
+    #   <%= uform_for @user do |form| %>
+    #     <%= form.field :email, :update %> # => will only generate email field, on update form context
+    #   <% end %>
+    # @see #field for more informations
+    #
+    #
     # @param [Symbol] method
     # @param [Symbol] validation_context form's context
     # @param [Hash] options other options that will be sent to helpers that builds fields and/or override builder attributes
     # @option options [String, NilClass] :label
     # @return [ActionView::Helpers::TagHelper::TagBuilder, ActiveSupport::SafeBuffer]
-    def field(method, validation_context: :base, **options)
+    def field(
+      method,
+      validation_context: :base,
+      **options
+    )
       check_form(validation_context)
 
       @field = nil if @current_method != method
@@ -124,48 +163,10 @@ module UnovaForm
         **options.except(:no_label, :label)
       }
 
-      label = options[:no_label] ? nil : options[:label] || current_human_name_for
+      label = nil
+      label = current_human_name_for(override_with: options[:label]) unless options[:no_label]
 
-      if attrs[:options].present? && [:checkboxes, :select].include?(attrs[:type].to_sym)
-        return select_field label, multiple: multiple?, **attrs
-      end
-
-      if attrs[:type] == :file
-        return file_field label,
-          value: current_file_value&.signed_id,
-          value_url: current_file_value_url,
-          accept: current_accepted_files&.join(","),
-          value_type: current_file_type,
-          **attrs.except(:value, :placeholder, :type, :autocomplete)
-      elsif attrs[:type] == :checkbox
-        return boolean_field label, checked: current_value == true, **attrs.except(:value)
-      end
-
-      len_validators = current_field.all_validators[:length]
-      num_validators = current_field.all_validators[:numericality]
-      # import minimum value from length validator or numericality validator
-      min, max =
-        if len_validators.is_a?(Hash)
-          [
-            len_validators[:minimum] || (len_validators[:in] || len_validators[:within])&.first || len_validators[:is],
-            len_validators[:maximum] || (len_validators[:in] || len_validators[:within])&.last || len_validators[:is]
-          ]
-        elsif num_validators.is_a?(Hash)
-          [
-            num_validators[:greater_than_or_equal_to] || num_validators[:equal_to] || num_validators[:in]&.first || num_validators[:greater_than]&.+(options[:step].try(:to_f) || 1),
-            num_validators[:less_than_or_equal_to] || num_validators[:equal_to] || num_validators[:in]&.last || num_validators[:less_than]&.+(options[:step].try(:to_f) || 1)
-          ]
-        end
-
-      pattern, pattern_messages = manage_format_validator
-
-      if pattern_messages.empty?
-        return input_field label, min:, max:, **attrs
-      end
-
-      input_field label, pattern: pattern.gsub("\"", "\\\""), min:, max:, data: { pattern_messages: pattern_messages.to_json },
-        oninvalid: "for (const [r, m] of Object.entries(JSON.parse(this.dataset.patternMessages))) if (!(new RegExp(r)).test(this.value)){ if(this.validationMessage != m) {this.setCustomValidity(m); this.reportValidity();} return; } if(this.validity.customError){this.setCustomValidity(''); this.reportValidity(); if(this.form && this.form.checkValidity()){this.form.submit()} return;}",
-        **attrs
+      render_field_using_attrs(label, attrs)
     end
 
     # Generate sub-form using UnovaForm::Builder, using rails built-in fields_for
@@ -191,45 +192,108 @@ module UnovaForm
     end
 
     private
+      # @param [String | NilClass] label
+      # @param [Hash] attrs
+      def render_field_using_attrs(label, attrs)
+        return select_field label, multiple: multiple?, **attrs unless attrs[:options].nil?
+
+        attrs.delete(:options)
+
+        case attrs[:type]
+        when :file
+          return file_field label,
+            value: current_file_value,
+            value_url: current_file_value_url,
+            accept: current_accepted_files&.join(","),
+            value_type: current_file_type,
+            **attrs.except(:value, :placeholder, :type)
+        when :checkbox
+          return boolean_field label, checked: current_value == true, **attrs.except(:value)
+        else
+          nil
+        end
+
+        # import minimum / maximum value from length validator or numericality validator
+        min, max = convert_len_num_validators_to_minmax(
+          current_field.all_validators[:length],
+          current_field.all_validators[:numericality]
+        )
+
+        pattern, pattern_messages = manage_format_validator
+
+        input_field label, pattern:, min:, max:,
+          **({ data: { pattern_messages: }, oninvalid: AUTOVALIDATE_JS_STRING } if pattern_messages.present?).to_h,
+          **attrs
+      end
+
+      # noinspection RailsParamDefResolve false positive because Object is for dynamic type
+      def convert_len_validator_to_minmax(len)
+        [
+          len[:minimum] || (len[:in] || len[:within]).try(:first) || len[:is],
+          len[:maximum] || (len[:in] || len[:within]).try(:last) || len[:is]
+        ]
+      end
+
+      # noinspection RailsParamDefResolve false positive because Object is for dynamic type
+      def convert_num_validator_to_minmax(num, step)
+        [
+          num[:greater_than_or_equal_to] || num[:equal_to] || num[:in].try(:first) || num[:greater_than].try(:+, step),
+          num[:less_than_or_equal_to] || num[:equal_to] || num[:in].try(:last) || num[:less_than].try(:-, step)
+        ]
+      end
+
+      # noinspection RailsParamDefResolve
+      def convert_len_num_validators_to_minmax(len, num, step = 1)
+        if len.is_a?(Hash)
+          convert_len_validator_to_minmax len
+        elsif num.is_a?(Hash)
+          convert_num_validator_to_minmax num, step
+        end
+      end
+
+      # check if filter variable contains method
+      #
+      # @param [Array<Symbol>, Symbol, NilClass] filter
+      # @return [TrueClass, FalseClass]
+      def filter_has_method?(filter, method) = filter.present? && (filter.try(:include?, method) || filter == method)
+
       def get_error_message(method, message)
         return object.errors.generate_message method, message if message.is_a?(Symbol)
+
         message.to_s
       end
 
       def convert_regex_to_js(regex)
-        regex.inspect.sub('\\A', "^").sub('\\Z', "$").sub('\\z', "$").sub(%r{^/}, "").sub(%r{/[a-z]*$}, "").gsub(/\(\?#.+\)/, "").gsub(/\(\?-\w+:/, "(")
+        safe_join([
+          regex.inspect.sub('\\A', "^").sub('\\Z', "$").sub('\\z', "$").sub(%r{^/}, "").sub(%r{/[a-z]*$}, "").gsub(/\(\?#.+\)/, "").gsub(/\(\?-\w+:/, "(")
+        ])
+      end
+
+      def validator_to_html_pattern(validator, pattern_messages)
+        { with: "?=", without: "?!" }.map do |key, lookahead|
+          next if validator[key].blank?
+
+          reg = convert_regex_to_js(validator[key])
+          pattern_messages[reg] = get_error_message(@current_method, validator[:message])
+          "(#{lookahead}#{'.*' unless reg.starts_with?('^')}#{reg})"
+        end.join
       end
 
       def manage_format_validator
         format_validators = current_field.all_validators[:format]
-        return ["", {}] if format_validators.blank?
 
         # @type [Hash{String => String}] patternMessages
         pattern_messages = {}
 
-        lookaheads_keys = { with: "?=", without: "?!" }
-
-        to_html_pattern = lambda do |validator|
-          r = ""
-          lookaheads_keys.each do |key, lookahead|
-            if validator[key].present?
-              reg = convert_regex_to_js(validator[key])
-              pattern_messages[reg] = get_error_message(@current_method, validator[:message])
-              r += "(#{lookahead}#{'.*' unless reg.starts_with?('^')}#{reg})"
-            end
-          end
-          r
-        end
-
         # @type [String, NilClass] pattern
         # import and concat patterns from format validators
-        pattern = if format_validators.is_a?(Array)
-          "#{format_validators.map { |v| to_html_pattern.call(v) }.join}.*"
-        elsif format_validators.is_a?(Hash)
-          "#{to_html_pattern.call(format_validators)}.*"
+        pattern = case format_validators
+        when Array then "#{format_validators.map { |v| validator_to_html_pattern(v, pattern_messages) }.join}.*"
+        when Hash then "#{validator_to_html_pattern(format_validators, pattern_messages)}.*"
+        else return ["", "{}"]
         end
 
-        [pattern, pattern_messages]
+        [pattern.gsub("\"", "\\\""), pattern_messages.to_json]
       end
 
       # @return [UnovaForm::Classes::Field]
@@ -241,10 +305,10 @@ module UnovaForm
         @field
       end
 
-      # @param [UnovaForm::Classes::Field, NilClass] v
+      # @param [UnovaForm::Classes::Field, NilClass] val
       # @return [UnovaForm::Classes::Field, NilClass]
-      def current_field=(v)
-        @field = v
+      def current_field=(val)
+        @field = val
       end
 
       # @return [Hash{Symbol => Object}]
@@ -261,10 +325,8 @@ module UnovaForm
 
       # @return [Object, NilClass]
       def current_value
-        resp = nil
-        resp = object[@current_method] if object.respond_to?("[]")
-        resp = object.try(@current_method) if object.respond_to?(@current_method) || resp.nil?
-        return resp if resp
+        return object[@current_method] if object.respond_to?(:[])
+        return object.try(@current_method) if object.respond_to?(@current_method)
 
         model_attributes[@current_method]
       end
@@ -276,7 +338,7 @@ module UnovaForm
 
       # @return [String]
       def current_tag_id
-        "#{object_name}[#{@current_method}]".tr("[", "_").delete("]") + "-" + (0...20).map { ("a".."z").to_a[rand(26)] }.join
+        "#{object_name.tr('[', '_').delete(']')}_#{@current_method}-#{(0...20).map { ('a'..'z').to_a[rand(26)] }.join}"
       end
 
       # @return [Symbol]
@@ -288,7 +350,7 @@ module UnovaForm
       def current_errors
         return unless current_errors?
 
-        object.errors[@current_method].join("<br />").html_safe
+        safe_join(object.errors.delete(@current_method).inject { |acc, e| Array(acc) << "<br />" << e })
       end
 
       # @return [TrueClass, FalseClass]
@@ -297,33 +359,27 @@ module UnovaForm
       end
 
       # @return [TrueClass, FalseClass]
+      # noinspection RailsParamDefResolve false positive because Object is for dynamic type
       def current_required?
-        (current_field.required || false) &&
-          (!object.respond_to?(:persisted?) || !object.persisted? || ((current_field.required_if_persisted || true) && object.persisted?))
+        persisted = object.try(:persisted?) || false
+        (current_field.required && (!persisted || current_field.required_if_persisted)) || false
       end
 
       # @return [Array<Hash{Symbol => String, TrueClass, FalseClass}>, NilClass]
+      # noinspection RailsParamDefResolve false positive because Object is for dynamic type
       def current_options
-        options = current_field.options
-        return nil if options.nil?
-
-        # if lambda has one argument, pass current_value
-        return options.call(current_value).map(&:symbolize_keys) if options.is_a?(Proc) && options.arity == 1
-        # if lambda has two arguments, pass current_value and object model (if options are dynamic using current model)
-        return options.call(current_value, object).map(&:symbolize_keys) if options.is_a?(Proc) && options.arity == 2
-
-        # if lambda has no arguments, selected option will be the current_value
-        options = options.call.map(&:symbolize_keys) if options.is_a?(Proc) && options.arity == 0
-
-        return options.map { |h|
-          nh = h.deep_dup.symbolize_keys
-          if nh[:value] == current_value
-            nh[:selected] = true
-          else
-            nh[:selected] = false
+        # noinspection RubyMismatchedArgumentType False positive
+        if [Proc, Array].include?(current_field.options.class)
+          return case current_field.options.try(:arity) # arity is the number of arguments, if arity is nil, it's a array
+          when 0 then current_field.options.try(:call)
+          when 1 then current_field.options.try(:call, current_value)
+          when 2 then current_field.options.try(:call, current_value, object)
+          when nil then current_field.options.try(:map) do |h|
+            h.deep_dup.symbolize_keys.tap { |nh| nh[:selected] = nh[:value] == current_value }
           end
-          nh
-        } if options.is_a?(Array)
+          else nil
+          end
+        end
         nil
       end
 
@@ -342,42 +398,42 @@ module UnovaForm
         current_file_value&.url || ""
       end
 
-      # @return [Symbol]
-      def current_file_type
-        type = current_accepted_files
-        type ||= current_file_value&.content_type ||
-          current_file_value&.blob&.content_type
-        type = type[0].to_s if type.is_a?(Array)
-        if type.nil?
-          case @current_method.to_s
-          when /video/, /mp4/, /avi/ then :video
-          when /avatar/, /image/, /img/, /picture/, /photo/, /jpg/, /png/, /bitmap/ then :img
-          when /sound/, /audio/, /mp3/, /music/, /song/ then :audio
-          else
-            :other
-          end
-        elsif type.start_with?("image")
-          :img
-        elsif type.start_with?("video")
-          :video
-        elsif type.start_with?("audio")
-          :audio
+      def file_type_from_method_name
+        case @current_method.to_s
+        when /video/, /mp4/, /avi/, /mov/, /mkv/, /webm/, /wmv/, /flv/, /ogv/, /gifv/ then :video
+        when /avatar/, /image/, /img/, /picture/, /photo/, /jpg/, /png/, /bitmap/, /gif/, /svg/, /webp/ then :img
+        when /sound/, /audio/, /mp3/, /music/, /song/, /flac/, /wav/, /ogg/, /oga/, /opus/, /m4a/, /aac/, /wma/, /alac/, /aiff/ then :audio
         else
           :other
+        end
+      end
+
+      # @return [Symbol]
+      def current_file_type
+        type = current_accepted_files || object.try(@current_method).try(:content_type) || object.try(@current_method).try(:blob).try(:content_type)
+        type = type[0].to_s if type.is_a?(Array)
+        case type
+        when /^image/ then :img
+        when /^video/ then :video
+        when /^audio/ then :audio
+        else file_type_from_method_name
         end
       end
 
       # @return [Array<String>, NilClass]
       # noinspection RubyMismatchedReturnType
       def current_accepted_files
-        current_field.all_validators.[](:content_type)&.[](:in)
+        current_field.all_validators.try(:[], :content_type).try(:[], :in)
       end
 
       # @param [Symbol] element
+      # @param [String | NilClass] override_with
       # @param [Hash] options
       # @return [String]
-      def current_human_name_for(element = :attributes, **options)
-        defaults = object.class.lookup_ancestors.map do |klass|
+      def current_human_name_for(element = :attributes, override_with: nil, **options)
+        return override_with if override_with.present?
+
+        defaults = object.class.lookup_ancestors.flat_map do |klass|
           [
             :"#{object.class.i18n_scope}.#{element}.#{klass.model_name.i18n_key}.#{@current_method}",
             # for ones that have all model translations in one file:
@@ -391,7 +447,7 @@ module UnovaForm
             # for ones that dont want keys like module/model, but path module.model
             :"#{object.class.i18n_scope}.#{element}.#{klass.model_name.i18n_key.to_s.tr('/', '.')}.#{@current_method}",
           ]
-        end.flatten
+        end
 
         defaults << :"#{element}.#{@current_method}"
         defaults << options.delete(:default) if options[:default]
@@ -408,13 +464,9 @@ module UnovaForm
         # @type [Symbol] current_validation_context
         @current_validation_context = validation_context
 
-        unless object.class.respond_to?(:forms)
-          raise Exception.new("model #{object.class} must extend UnovaForm::Concern::HasForm")
-        end
+        raise "model #{object.class} must extend UnovaForm::Concern::HasForm" unless object.class.respond_to?(:forms)
 
-        unless forms.key?(validation_context)
-          raise Exception.new("model #{object.class} dont have form for :#{validation_context} context.")
-        end
+        raise "model #{object.class} dont have form for :#{validation_context} context." unless forms.key?(validation_context)
       end
   end
 end

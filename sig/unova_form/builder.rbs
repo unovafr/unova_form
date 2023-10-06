@@ -1,35 +1,49 @@
 module UnovaForm
   class Builder
+    AUTOVALIDATE_JS_STRING: String
+
     @current_validation_context: Symbol?
     @current_method: Symbol?
-    @field: UnovaForm::Classes::Field?
-    @helper: singleton(UnovaForm::Helpers::InputHelper)
+    @field: Classes::Field?
+    @input_helper: singleton(Helpers::InputHelper)
 
-    def self.input_helper: -> singleton(UnovaForm::Helpers::InputHelper)
+    def self.input_helper: -> singleton(Helpers::InputHelper)
 
-    def self.input_helper=: (singleton(UnovaForm::Helpers::InputHelper) v) -> singleton(UnovaForm::Helpers::InputHelper)
+    def self.input_helper=: (singleton(Helpers::InputHelper) val) -> singleton(Helpers::InputHelper)
 
-    attr_reader object: Object & UnovaForm::Concern::HasForm
+    attr_reader object: Object & Concern::HasForm
 
-    def forms: -> Hash[Symbol, UnovaForm::Classes::Form]
+    def forms: -> Hash[Symbol, Classes::Form]
 
     def fields: (Symbol validation_context, omit: Array[Symbol] | Symbol | nil, only: Array[Symbol] | Symbol | nil, no_labels: bool, options_for: Hash[Symbol, Hash[Symbol, Object]], **Object options) -> (ActionView::Helpers::TagHelper::TagBuilder | ActiveSupport::SafeBuffer)
 
     def field: (Symbol method, validation_context: Symbol, **Object options) -> (ActionView::Helpers::TagHelper::TagBuilder | ActiveSupport::SafeBuffer)
 
-    def ufields_for: (Object record_or_name_or_array, *Object args) { (UnovaForm::Builder) -> (ActionView::Helpers::TagHelper::TagBuilder | ActiveSupport::SafeBuffer) } -> (ActionView::Helpers::TagHelper::TagBuilder | ActiveSupport::SafeBuffer)
+    def ufields_for: (Object record_or_name_or_array, *Object args) { (Builder) -> (ActionView::Helpers::TagHelper::TagBuilder | ActiveSupport::SafeBuffer) } -> (ActionView::Helpers::TagHelper::TagBuilder | ActiveSupport::SafeBuffer)
 
     private
 
-    def convert_regex_to_js: (Regexp regex) -> String
+    def render_field_using_attrs: (String? label, Hash[Symbol, Object] attrs) -> (ActionView::Helpers::TagHelper::TagBuilder | ActiveSupport::SafeBuffer)
 
-    def current_field: -> UnovaForm::Classes::Field
+    def convert_len_validator_to_minmax: (Hash[Symbol, Object]? len) -> Array[Object]
 
-    def current_field=: (UnovaForm::Classes::Field? v) -> UnovaForm::Classes::Field?
+    def convert_num_validator_to_minmax: (Hash[Symbol, Object]? num, Numeric step) -> Array[Object]
+
+    def convert_len_num_validators_to_minmax: (Hash[Symbol, Object]? len, Hash[Symbol, Object]? num, Numeric step) -> Array[Object]?
+
+    def filter_has_method?: (Array[Symbol] | Symbol | nil filter, Symbol method) -> bool
 
     def get_error_message: (Symbol method, Symbol | String message) -> String
 
-    def manage_format_validator: -> [String, Hash[String, String]]
+    def convert_regex_to_js: (Regexp regex) -> String
+
+    def validator_to_html_pattern: (Object validator, Hash[String, String] pattern_messages) -> String
+
+    def manage_format_validator: -> [String, String]
+
+    def current_field: -> Classes::Field
+
+    def current_field=: (Classes::Field? val) -> Classes::Field?
 
     def model_attributes: -> Hash[Symbol, Object]
 
@@ -51,15 +65,17 @@ module UnovaForm
 
     def multiple?: -> bool
 
+    def current_file_value: -> ActiveStorage::Blob?
+
     def current_file_value_url: -> String
 
-    def current_file_value: -> ActiveStorage::Blob?
+    def file_type_from_method_name: -> Symbol
 
     def current_file_type: -> Symbol
 
     def current_accepted_files: -> Array[String]?
 
-    def current_human_name_for: (Symbol attributes, **Object options) -> String
+    def current_human_name_for: (Symbol attributes, override_with: String?, **Object options) -> String
 
     def check_form: (Symbol validation_context) -> void
   end

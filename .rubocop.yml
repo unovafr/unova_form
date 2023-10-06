@@ -74,7 +74,7 @@ Layout/ElseAlignment:
 # assignments, where it should be aligned with the LHS.
 Layout/EndAlignment:
   Enabled: true
-  EnforcedStyleAlignWith: variable
+  EnforcedStyleAlignWith: start_of_line
   AutoCorrect: true
 
 Layout/EndOfLine:
