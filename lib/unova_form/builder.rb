@@ -200,17 +200,17 @@ module UnovaForm
         attrs.delete(:options)
 
         case attrs[:type]
-        when :file
-          return file_field label,
-            value: current_file_value,
-            value_url: current_file_value_url,
-            accept: current_accepted_files&.join(","),
-            value_type: current_file_type,
-            **attrs.except(:value, :placeholder, :type)
-        when :checkbox
-          return boolean_field label, checked: current_value == true, **attrs.except(:value)
-        else
-          nil
+          when :file
+            return file_field label,
+              value: current_file_value,
+              value_url: current_file_value_url,
+              accept: current_accepted_files&.join(","),
+              value_type: current_file_type,
+              **attrs.except(:value, :placeholder, :type)
+          when :checkbox
+            return boolean_field label, checked: current_value == true, **attrs.except(:value)
+          else
+            nil
         end
 
         # import minimum / maximum value from length validator or numericality validator
@@ -288,9 +288,9 @@ module UnovaForm
         # @type [String, NilClass] pattern
         # import and concat patterns from format validators
         pattern = case format_validators
-        when Array then "#{format_validators.map { |v| validator_to_html_pattern(v, pattern_messages) }.join}.*"
-        when Hash then "#{validator_to_html_pattern(format_validators, pattern_messages)}.*"
-        else return ["", "{}"]
+          when Array then "#{format_validators.map { |v| validator_to_html_pattern(v, pattern_messages) }.join}.*"
+          when Hash then "#{validator_to_html_pattern(format_validators, pattern_messages)}.*"
+          else return ["", "{}"]
         end
 
         [pattern.gsub("\"", "\\\""), pattern_messages.to_json]
@@ -371,13 +371,13 @@ module UnovaForm
         # noinspection RubyMismatchedArgumentType False positive
         if [Proc, Array].include?(current_field.options.class)
           return case current_field.options.try(:arity) # arity is the number of arguments, if arity is nil, it's a array
-          when 0 then current_field.options.try(:call)
-          when 1 then current_field.options.try(:call, current_value)
-          when 2 then current_field.options.try(:call, current_value, object)
-          when nil then current_field.options.try(:map) do |h|
-            h.deep_dup.symbolize_keys.tap { |nh| nh[:selected] = nh[:value] == current_value }
-          end
-          else nil
+            when 0 then current_field.options.try(:call)
+            when 1 then current_field.options.try(:call, current_value)
+            when 2 then current_field.options.try(:call, current_value, object)
+            when nil then current_field.options.try(:map) do |h|
+              h.deep_dup.symbolize_keys.tap { |nh| nh[:selected] = nh[:value] == current_value }
+            end
+            else nil
           end
         end
         nil
@@ -400,11 +400,11 @@ module UnovaForm
 
       def file_type_from_method_name
         case @current_method.to_s
-        when /video/, /mp4/, /avi/, /mov/, /mkv/, /webm/, /wmv/, /flv/, /ogv/, /gifv/ then :video
-        when /avatar/, /image/, /img/, /picture/, /photo/, /jpg/, /png/, /bitmap/, /gif/, /svg/, /webp/ then :img
-        when /sound/, /audio/, /mp3/, /music/, /song/, /flac/, /wav/, /ogg/, /oga/, /opus/, /m4a/, /aac/, /wma/, /alac/, /aiff/ then :audio
-        else
-          :other
+          when /video/, /mp4/, /avi/, /mov/, /mkv/, /webm/, /wmv/, /flv/, /ogv/, /gifv/ then :video
+          when /avatar/, /image/, /img/, /picture/, /photo/, /jpg/, /png/, /bitmap/, /gif/, /svg/, /webp/ then :img
+          when /sound/, /audio/, /mp3/, /music/, /song/, /flac/, /wav/, /ogg/, /oga/, /opus/, /m4a/, /aac/, /wma/, /alac/, /aiff/ then :audio
+          else
+            :other
         end
       end
 
@@ -413,10 +413,10 @@ module UnovaForm
         type = current_accepted_files || object.try(@current_method).try(:content_type) || object.try(@current_method).try(:blob).try(:content_type)
         type = type[0].to_s if type.is_a?(Array)
         case type
-        when /^image/ then :img
-        when /^video/ then :video
-        when /^audio/ then :audio
-        else file_type_from_method_name
+          when /^image/ then :img
+          when /^video/ then :video
+          when /^audio/ then :audio
+          else file_type_from_method_name
         end
       end
 
