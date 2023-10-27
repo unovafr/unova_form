@@ -282,7 +282,7 @@ module UnovaForm
       def manage_format_validator
         format_validators = current_field.all_validators[:format]
 
-        # @type [Hash{String => String}] patternMessages
+        # @type [Hash{String => String}] pattern_messages
         pattern_messages = {}
 
         # @type [String, NilClass] pattern
