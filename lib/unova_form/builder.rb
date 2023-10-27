@@ -222,7 +222,7 @@ module UnovaForm
         pattern, pattern_messages = manage_format_validator
 
         input_field label, min:, max:,
-          **({pattern:, data: { pattern_messages: }, oninvalid: AUTOVALIDATE_JS_STRING } if pattern_messages.present? && pattern_messages != "{}").to_h,
+          **({pattern:, data: { pattern_messages: }, oninvalid: AUTOVALIDATE_JS_STRING } if pattern.present? && pattern_messages.present? && pattern_messages != "{}").to_h,
           **attrs
       end
 
