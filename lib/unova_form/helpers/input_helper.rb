@@ -166,7 +166,7 @@ module UnovaForm
                               ("with-icon#{"-left" if is_icon_left}" if icon.present?)
                             ]),
           title: (placeholder || name || id if label.nil?),
-          pattern: pattern&.gsub("\"", "\\\"")&.gsub("\\", "\\\\"),
+          pattern: pattern&.gsub("\"", "\\\"")&.gsub("\\", "\\\\")&.html_safe,
           step:,
           **minmax,
           **_options
