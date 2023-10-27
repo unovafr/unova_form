@@ -293,7 +293,7 @@ module UnovaForm
           else return ["", "{}"]
         end
 
-        [pattern.gsub("\"", "\\\""), pattern_messages.to_json]
+        [safe_join([pattern.gsub("\"", "\\\"")]), pattern_messages.to_json]
       end
 
       # @return [UnovaForm::Classes::Field]
