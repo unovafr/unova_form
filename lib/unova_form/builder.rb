@@ -446,7 +446,7 @@ module UnovaForm
             #     placeholders:
             #       **placeholders**
             :"#{object.class.i18n_scope}.#{klass.model_name.i18n_key}.#{element}.#{@current_method}",
-          ]
+          ].reject(&:empty?)
         end
 
         defaults << :"#{element}.#{@current_method}"
