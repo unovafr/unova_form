@@ -113,7 +113,7 @@ module UnovaForm
       # allow field if not in omit and if only is nil or only include field
       safe_join(
         forms[validation_context].fields.filter_map do |method, _|
-          next if !filter_has_method?(omit, method) && (only.nil? || filter_has_method?(only, method))
+          next if filter_has_method?(omit, method) || (only.present? && !filter_has_method?(only, method))
 
           field method, validation_context:, no_label: no_labels, **options, **options_for[method].to_h
         end
