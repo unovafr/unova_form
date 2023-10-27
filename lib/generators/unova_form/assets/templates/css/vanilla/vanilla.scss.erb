@@ -1,15 +1,13 @@
-/*
-  This stylesheet was generated using "rails g unova_form:assets css"
-
-  You can change the values of the custom properties below to customize the theme
-  of your form, and you can feel free to override any of the css rules below
-  to customize the form.
-
-  Keep in mind that if the library is updated, and you want to re generate
-  stylesheets to match updates, your changes will be lost, so you might
-  prefer making your changes in a separate stylesheet imported after this one,
-  this advice applies to custom properties as well.
-*/
+// This stylesheet was generated using "rails g unova_form:assets css"
+//
+// You can change the values of the custom properties below to customize the theme
+// of your form, and you can feel free to override any of the css rules below
+// to customize the form.
+//
+// Keep in mind that if the library is updated, and you want to re generate
+// stylesheets to match updates, your changes will be lost, so you might
+// prefer making your changes in a separate stylesheet imported after this one,
+// this advice applies to custom properties as well.
 
 :root{
   --label-color: <%= @theme[:label_color] %>;
@@ -52,57 +50,53 @@
   --input-icon-right-padding: <%= @theme[:input_icon_right_padding] %>;
 }
 
-/*
-  Main container of all fields, it's a flex container with a column direction
-  prefer to avoid changing this rule for unique changes, and use
-  options: {container_class: "my-container-class" } instead
-
-  on html side, error is placed first, input second, and label third,
-  they are ordered using flex order property, so this way, you can make
-  the label red if there is an error, for example, using this rule:
-  div.field > div.error ~ label{ color: red; }
-  or you can make the input red if is an error, using this rule:
-  div.field > div.error ~ input,
-  div.field > div.error ~ select,
-  div.field > div.error ~ textarea,
-  div.field > div.error ~ div.field-container > input,
-  div.field > div.error ~ div.field-container > select,
-  div.field > div.error ~ div.field-container > textarea {
-    border-color: red;
-  }
-  you can also alter label on actions made on input, using this rule:
-  div.field > input:focus ~ label,
-  div.field > select:focus ~ label,
-  div.field > textarea:focus ~ label,
-  div.field > div.field-container:has(input:focus) > label,
-  div.field > div.field-container:has(select:focus) > label,
-  div.field > div.field-container:has(textarea:focus) > label{
-    color: blue;
-  }
-  Unfortunately, :has selector is not supported by all browsers yet,
-  at the date of this comment, firefox, IE, Opera mini, UC browser,
-  firefox for android, QQ browser, BaiDu browser and KaiOS browser
-  don't support it, so if necessary, you can use javascript to add
-  a class to the field-container when input is focused for these browsers,
-  and add this selector to the rule above:
-  div.field > div.field-container.has-focus > label
-*/
+// Main container of all fields, it's a flex container with a column direction
+// prefer to avoid changing this rule for unique changes, and use
+// options: {container_class: "my-container-class" } instead
+//
+// on html side, error is placed first, input second, and label third,
+// they are ordered using flex order property, so this way, you can make
+// the label red if there is an error, for example, using this rule:
+// div.field > div.error ~ label{ color: red; }
+// or you can make the input red if is an error, using this rule:
+// div.field > div.error ~ input,
+// div.field > div.error ~ select,
+// div.field > div.error ~ textarea,
+// div.field > div.error ~ div.field-container > input,
+// div.field > div.error ~ div.field-container > select,
+// div.field > div.error ~ div.field-container > textarea {
+//   border-color: red;
+// }
+// you can also alter label on actions made on input, using this rule:
+// div.field > input:focus ~ label,
+// div.field > select:focus ~ label,
+// div.field > textarea:focus ~ label,
+// div.field > div.field-container:has(input:focus) > label,
+// div.field > div.field-container:has(select:focus) > label,
+// div.field > div.field-container:has(textarea:focus) > label{
+//   color: blue;
+// }
+// Unfortunately, :has selector is not supported by all browsers yet,
+// at the date of this comment, firefox, IE, Opera mini, UC browser,
+// firefox for android, QQ browser, BaiDu browser and KaiOS browser
+// don't support it, so if necessary, you can use javascript to add
+// a class to the field-container when input is focused for these browsers,
+// and add this selector to the rule above:
+// div.field > div.field-container.has-focus > label
 div.field {
   display: flex;
   flex-direction: column;
   gap: var(--label-input-error-gap);
   > {
 
-    /*
-      this is the label of the field, with basic styling.
-      if you want add an "*" for required fields, you can use this style:
-      div.field > label[required]:after{
-        content: "*";
-        color: red;
-      }
-      prefer to avoid changing this rule for unique changes, and use
-      options: {label_class: "my-label-class" } instead
-    */
+    // this is the label of the field, with basic styling.
+    // if you want add an "*" for required fields, you can use this style:
+    // div.field > label[required]:after{
+    //   content: "*";
+    //   color: red;
+    // }
+    // prefer to avoid changing this rule for unique changes, and use
+    // options: {label_class: "my-label-class" } instead
     label {
       order: 0;
       color: var(--label-color);
@@ -111,9 +105,7 @@ div.field {
       font-family: var(--label-font-family);
     }
 
-    /*
-      this is the error message of the field, with basic styling.
-    */
+    // this is the error message of the field, with basic styling.
     div.error {
       order: 2;
       color: var(--error-color);
@@ -124,10 +116,8 @@ div.field {
       margin-bottom: var(--error-margin-bottom);
     }
 
-    /*
-      this is used to properly order the input, select, textarea and
-      field-container (who contains input in majority of cases)
-    */
+    // this is used to properly order the input, select, textarea and
+    // field-container (who contains input in majority of cases)
     input, select, textarea, div.field-container, div.field-container-full{
       order: 1;
     }
@@ -135,28 +125,26 @@ div.field {
       flex: 1;
     }
 
-    /*
-      this is the input, select, textarea styling, with basic styling.
-      inputs are majoritary wrapped into a div.field-container, because when you use
-      options: {icon: tag.i nil, class: "my-icon-class" } to add an icon to the input,
-      the icon is placed inside this div.field-container, absolute positioned,
-      and the input is padded to avoid the icon overlapping the input text, this way
-      allows the icon to always be correctly placed, regardless of the input type, or size.
-
-      the icon is always placed after the input, so you can use this rule to change the
-      icon color when input is focused, for example:
-      div.field > input:focus ~ .icon,
-      div.field > select:focus ~ .icon,
-      div.field > textarea:focus ~ .icon,
-      div.field > div.field-container > input:focus ~ .icon,
-      div.field > div.field-container > select:focus ~ .icon,
-      div.field > div.field-container > textarea:focus ~ .icon{
-        color: blue;
-      }
-
-      prefer to avoid changing this rule for unique changes, and use
-      options: {input_class: "my-input-class" } instead
-    */
+    // this is the input, select, textarea styling, with basic styling.
+    // inputs are majoritary wrapped into a div.field-container, because when you use
+    // options: {icon: tag.i nil, class: "my-icon-class" } to add an icon to the input,
+    // the icon is placed inside this div.field-container, absolute positioned,
+    // and the input is padded to avoid the icon overlapping the input text, this way
+    // allows the icon to always be correctly placed, regardless of the input type, or size.
+    //
+    // the icon is always placed after the input, so you can use this rule to change the
+    // icon color when input is focused, for example:
+    // div.field > input:focus ~ .icon,
+    // div.field > select:focus ~ .icon,
+    // div.field > textarea:focus ~ .icon,
+    // div.field > div.field-container > input:focus ~ .icon,
+    // div.field > div.field-container > select:focus ~ .icon,
+    // div.field > div.field-container > textarea:focus ~ .icon{
+    //   color: blue;
+    // }
+    //
+    // prefer to avoid changing this rule for unique changes, and use
+    // options: {input_class: "my-input-class" } instead
     input, select, textarea {
       border-color: var(--input-border-color);
       border-width: var(--input-border-width);
@@ -211,10 +199,8 @@ div.field {
       padding: 0;
     }
 
-    /*
-      this is the input, select, textarea placeholder styling, with basic styling.
-      (i know that select doesn't have placeholder, but if there is a future update, we are ready)
-    */
+    // this is the input, select, textarea placeholder styling, with basic styling.
+    // (i know that select doesn't have placeholder, but if there is a future update, we are ready)
     input::placeholder, select::placeholder, textarea::placeholder,
     div.field-container > input::placeholder,
     div.field-container > select::placeholder,
@@ -223,11 +209,9 @@ div.field {
     }
 
 
-    /*
-      this is the container for majority of inputs, it's a flex container with a column direction
-      with the same gap as main field container. position is relative, so the icon can be
-      absolute positioned inside it.
-    */
+    // this is the container for majority of inputs, it's a flex container with a column direction
+    // with the same gap as main field container. position is relative, so the icon can be
+    // absolute positioned inside it.
     div.field-container {
       position: relative;
       display: flex;
@@ -235,15 +219,13 @@ div.field {
       gap: var(--label-input-error-gap);
 
       > {
-        /*
-          this is the icon, it's a flex container with content centered, to avoid the icon
-          to be misaligned.
-          the icon is absolute positioned, to be vertically centered with the input, for
-          this reason, the input is padded to avoid the icon overlapping the input text.
-
-          prefer to avoid changing this rule for unique changes, and use
-          options: {icon_class: "my-icon-class" } instead
-        */
+        // this is the icon, it's a flex container with content centered, to avoid the icon
+        // to be misaligned.
+        // the icon is absolute positioned, to be vertically centered with the input, for
+        // this reason, the input is padded to avoid the icon overlapping the input text.
+        //
+        // prefer to avoid changing this rule for unique changes, and use
+        // options: {icon_class: "my-icon-class" } instead
         .icon {
           position: absolute;
           top: 50%;
@@ -264,7 +246,7 @@ div.field {
 
         textarea ~ .icon {
           top: 0;
-          padding: var(--input-padding); /* small fix to align icon on top of textarea */
+          padding: var(--input-padding); // small fix to align icon on top of textarea
           padding-left: unset;
           padding-right: unset;
           transform: unset;
@@ -279,11 +261,9 @@ div.field {
           }
         }
 
-        /*
-          for special fields like checkboxes/radios select, or boolean, field-container
-          has one or many .field-checkboxes-item, these will align checkboxes/radios
-          with their labels and add a gap between them.
-        */
+        // for special fields like checkboxes/radios select, or boolean, field-container
+        // has one or many .field-checkboxes-item, these will align checkboxes/radios
+        // with their labels and add a gap between them.
         div.field-checkboxes-item {
           display: flex;
           flex-direction: row;
@@ -292,12 +272,10 @@ div.field {
 
           > input {
 
-            /*
-              this is the checkbox styling, with basic styling.
-
-              prefer to avoid changing this rule for unique changes, and use
-              options: {input_class: "my-input-class" } instead
-            */
+            // this is the checkbox styling, with basic styling.
+            //
+            // prefer to avoid changing this rule for unique changes, and use
+            // options: {input_class: "my-input-class" } instead
             &[type="checkbox"] {
               color: var(--checkbox-color);
               width: var(--checkbox-size);
@@ -310,12 +288,10 @@ div.field {
               margin: 0;
             }
 
-            /*
-              this is the radio styling, with basic styling.
-
-              prefer to avoid changing this rule for unique changes, and use
-              options: {input_class: "my-input-class" } instead
-            */
+            // this is the radio styling, with basic styling.
+            //
+            // prefer to avoid changing this rule for unique changes, and use
+            // options: {input_class: "my-input-class" } instead
             &[type="radio"] {
               color: var(--radio-color);
               width: var(--radio-size);
@@ -334,11 +310,9 @@ div.field {
   }
 
 
-  /*
-    this is the multiselect styling, vanilla multiselect is very ugly,
-    so we hide it and use a custom multiselect instead, wo will be generated
-    using js controller provided by unova_form gem.
-  */
+  // this is the multiselect styling, vanilla multiselect is very ugly,
+  // so we hide it and use a custom multiselect instead, wo will be generated
+  // using js controller provided by unova_form gem.
   &[data-controller="multiselect"] {
     position: relative;
 
@@ -495,15 +469,13 @@ div.field {
     }
   }
 
-  /*
-    this is file input styling, vanilla file input is very ugly,
-    so we hide it and use a custom file input instead.
-
-    we use a label to trigger the file input, so we can style it
-    to show preview of the selected file.
-
-    all js is provided by unova_form gem, on file_field_controller.js
-  */
+  // this is file input styling, vanilla file input is very ugly,
+  // so we hide it and use a custom file input instead.
+  //
+  // we use a label to trigger the file input, so we can style it
+  // to show preview of the selected file.
+  //
+  // all js is provided by unova_form gem, on file_field_controller.js
   &[data-controller="file-field"] {
     position: relative;
 
