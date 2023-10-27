@@ -437,7 +437,7 @@ module UnovaForm
           [
             :"#{object.class.i18n_scope}.#{element}.#{klass.model_name.i18n_key}.#{@current_method}",
             # for ones that dont want keys like module/model, but path module.model
-            (:"#{object.class.i18n_scope}.#{element}.#{klass.model_name.i18n_key.to_s.tr('/', '.')}.#{@current_method}" if klass.model_name.i18n_key.include?('/')),
+            (:"#{object.class.i18n_scope}.#{element}.#{klass.model_name.i18n_key.to_s.tr('/', '.')}.#{@current_method}" if klass.model_name.i18n_key.to_s.include?('/')),
             # for ones that have all model translations in one file:
             # active_record:
             #   <model_name>:
