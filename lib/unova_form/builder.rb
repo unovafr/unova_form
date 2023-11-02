@@ -113,7 +113,9 @@ module UnovaForm
       # allow field if not in omit and if only is nil or only include field
       safe_join(
         forms[validation_context].fields.filter_map do |method, _|
-          next if filter_has_method?(omit, method) || (only.present? && !filter_has_method?(only, method))
+          # exclude field if in omit (if omit is present) or if only is present and not include field
+          # if omit include field, and only include field, omit will be prioritized
+          next if (omit.present? && filter_has_method?(omit, method)) || !(only.nil? || filter_has_method?(only, method))
 
           field method, validation_context:, no_label: no_labels, **options, **options_for[method].to_h
         end
@@ -222,7 +224,7 @@ module UnovaForm
         pattern, pattern_messages = manage_format_validator
 
         input_field label, min:, max:,
-          **({pattern:, data: { pattern_messages: pattern_messages.html_safe }, oninvalid: AUTOVALIDATE_JS_STRING } if pattern.present? && pattern_messages.present? && pattern_messages != "{}").to_h,
+          **({ pattern:, data: { pattern_messages: pattern_messages.html_safe }, oninvalid: AUTOVALIDATE_JS_STRING } if pattern.present? && pattern_messages.present? && pattern_messages != "{}").to_h,
           **attrs
       end
 
@@ -350,7 +352,7 @@ module UnovaForm
       def current_errors
         return unless current_errors?
 
-        safe_join(Array(object.errors.delete(@current_method).inject { |acc, e| Array(acc) << "<br>" << e.tr("\n", "<br>") }))
+        safe_join(Array(object.errors.delete(@current_method)&.inject { |acc, e| Array(acc) << "<br />" << e }))
       end
 
       # @return [TrueClass, FalseClass]

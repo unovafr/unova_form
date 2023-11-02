@@ -217,7 +217,7 @@ module UnovaForm
       def select_field(label, id: nil, type: :select, name: nil, error: nil, value: nil, required: nil, disabled: nil, placeholder: "select", options: [], icon: nil, is_icon_left: nil, container_class: nil, input_class: nil, label_class: nil, icon_class: nil, controller: nil, multiple: false, **_options)
         id ||= random_id
         options ||= []
-        options.unshift({ value: "", label: placeholder, disabled: required || multiple }) if placeholder.present? && placeholder != ""
+        options.unshift({ value: "", label: placeholder, disabled: required || multiple, selected: value.blank? }) if placeholder.present? && placeholder != ""
 
         unless [:select, :checkboxes].include?(type&.to_sym)
           raise "Select fields must have :select or :checkboxes types respectively provided by UnovaForm::FormTypes::Select UnovaForm::FormTypes::CheckSelect"

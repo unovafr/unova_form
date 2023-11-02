@@ -21,3 +21,5 @@ S
 #lib/unova_form/concerns/has_form.rb,4/6/46b43ab5cd5ebbd984ae30b1326f9526a3ea0c23
 R
 "lib/unova_form/field_types/file.rb,c/e/ce7f93912ec29b502908b260fae7cea6276f838c
+I
+lib/unova_form/builder.rb,f/2/f2747a2c1a34de7055422c557c940c698c2afa1c
