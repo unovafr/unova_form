@@ -223,7 +223,9 @@ module UnovaForm
 
         pattern, pattern_messages = manage_format_validator
 
-        input_field label, min:, max:,
+        step = current_field.all_validators[:numericality].try(:[], :only_integer) ? 1 : "any"
+
+        input_field label, min:, max:, step:,
           **({ pattern:, data: { pattern_messages: pattern_messages.html_safe }, oninvalid: AUTOVALIDATE_JS_STRING } if pattern.present? && pattern_messages.present? && pattern_messages != "{}").to_h,
           **attrs
       end
