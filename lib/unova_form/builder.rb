@@ -329,8 +329,8 @@ module UnovaForm
 
       # @return [Object, NilClass]
       def current_value
-        return object[@current_method] if object.respond_to?(:[])
         return object.try(@current_method) if object.respond_to?(@current_method)
+        return object[@current_method] if object.respond_to?(:[])
 
         model_attributes[@current_method]
       end
