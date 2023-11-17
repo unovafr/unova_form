@@ -10,7 +10,12 @@ module UnovaForm
   class Builder < ActionView::Helpers::FormBuilder
     AUTOVALIDATE_JS_STRING = <<~JS.gsub(/\s+/, " ").strip.freeze
       let s=this;
-      for (const [r, m] of Object.entries(JSON.parse(s.dataset.patternMessages)))
+      for (const [r, m] of Object.entries(JSON.parse(s.dataset.patternMessages))) {
+        // Ensure html encoded data is decoded (Rails encode data from builder for security)
+        let txt = document.createElement("textarea");
+        txt.innerHTML = r;
+        r = txt.value;
+        // end
         if (!(new RegExp(r)).test(s.value)){ if(s.validationMessage !== m) {
           s.setCustomValidity(m); s.reportValidity();} return;
         } if(s.validity.customError){
@@ -20,6 +25,7 @@ module UnovaForm
             s.form.submit()
           } return;
         }
+      }
     JS
     delegate :content_tag, :tag, :safe_join, :rails_direct_uploads_url, :capture, :concat, to: :@template
 
