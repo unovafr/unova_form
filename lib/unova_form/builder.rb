@@ -8,18 +8,32 @@ module UnovaForm
   # noinspection ThisExpressionReferencesGlobalObjectJS will be on oninvalid, this will be the input
   # noinspection RubyTooManyMethodsInspection wants to keep all methods here because all are utils and +class+ is simpler like this for me
   class Builder < ActionView::Helpers::FormBuilder
-    AUTOVALIDATE_JS_STRING = <<~JS.gsub(/\s+/, " ").strip.freeze
-      let s=this;
-      for (const [r, m] of Object.entries(JSON.parse(s.dataset.patternMessages)))
-        if (!(new RegExp(r)).test(s.value)){ if(s.validationMessage !== m) {
-          s.setCustomValidity(m); s.reportValidity();} return;
-        } if(s.validity.customError){
-          s.setCustomValidity('');
-          s.reportValidity();
-          if(s.form && s.form.checkValidity()){
-            s.form.submit()
-          } return;
-        }
+    # ```javascript
+    # let s = this;
+    # for (let [r, m] of Object.entries(JSON.parse(s.dataset.patternMessages))) {
+    #     // Ensure html encoded data is decoded (Rails encode data from builder for security)
+    #     let txt = document.createElement("textarea");
+    #     txt.innerHTML = r;
+    #     r = txt.value;
+    #     // end
+    #
+    #     if (!(new RegExp(r)).test(s.value)) {
+    #         if(s.validationMessage !== m) {
+    #             s.setCustomValidity(m);
+    #             s.reportValidity();
+    #         }
+    #     } else if (s.validity.customError) {
+    #         s.setCustomValidity('');
+    #         s.reportValidity();
+    #         if (s.form && s.form.checkValidity()) {
+    #             s.form.submit()
+    #         }
+    #     }
+    # }
+    # ```
+    # Use any JS minifier and paste result here
+    AUTOVALIDATE_JS_STRING = <<~JS.freeze
+      let s=this;for(let[t,e]of Object.entries(JSON.parse(s.dataset.patternMessages))){let a=document.createElement("textarea");a.innerHTML=t,t=a.value,new RegExp(t).test(s.value)||s.validationMessage!==e&&(s.setCustomValidity(e),s.reportValidity()),s.validity.customError&&(s.setCustomValidity(""),s.reportValidity(),s.form&&s.form.checkValidity()&&s.form.submit())}
     JS
     delegate :content_tag, :tag, :safe_join, :rails_direct_uploads_url, :capture, :concat, to: :@template
 
@@ -194,6 +208,7 @@ module UnovaForm
     end
 
     private
+
       # @param [String | NilClass] label
       # @param [Hash] attrs
       def render_field_using_attrs(label, attrs)
@@ -204,11 +219,11 @@ module UnovaForm
         case attrs[:type]
           when :file
             return file_field label,
-              value: current_file_value,
-              value_url: current_file_value_url,
-              accept: current_accepted_files&.join(","),
-              value_type: current_file_type,
-              **attrs.except(:value, :placeholder, :type)
+                              value: current_file_value,
+                              value_url: current_file_value_url,
+                              accept: current_accepted_files&.join(","),
+                              value_type: current_file_type,
+                              **attrs.except(:value, :placeholder, :type)
           when :checkbox
             return boolean_field label, checked: current_value == true, **attrs.except(:value)
           else
@@ -226,8 +241,8 @@ module UnovaForm
         step = current_field.all_validators[:numericality].try(:[], :only_integer) ? 1 : "any"
 
         input_field label, min:, max:, step:,
-          **({ pattern:, data: { pattern_messages: pattern_messages.html_safe }, oninvalid: AUTOVALIDATE_JS_STRING } if pattern.present? && pattern_messages.present? && pattern_messages != "{}").to_h,
-          **attrs
+                    **({ pattern:, data: { pattern_messages: pattern_messages.html_safe }, oninvalid: AUTOVALIDATE_JS_STRING } if pattern.present? && pattern_messages.present? && pattern_messages != "{}").to_h,
+                    **attrs
       end
 
       # noinspection RailsParamDefResolve false positive because Object is for dynamic type
@@ -269,8 +284,8 @@ module UnovaForm
 
       def convert_regex_to_js(regex)
         safe_join([
-          regex.inspect.sub('\\A', "^").sub('\\Z', "$").sub('\\z', "$").sub(%r{^/}, "").sub(%r{/[a-z]*$}, "").gsub(/\(\?#.+\)/, "").gsub(/\(\?-\w+:/, "(")
-        ])
+                    regex.inspect.sub('\\A', "^").sub('\\Z', "$").sub('\\z', "$").sub(%r{^/}, "").sub(%r{/[a-z]*$}, "").gsub(/\(\?#.+\)/, "").gsub(/\(\?-\w+:/, "(")
+                  ])
       end
 
       def validator_to_html_pattern(validator, pattern_messages)
