@@ -8,24 +8,32 @@ module UnovaForm
   # noinspection ThisExpressionReferencesGlobalObjectJS will be on oninvalid, this will be the input
   # noinspection RubyTooManyMethodsInspection wants to keep all methods here because all are utils and +class+ is simpler like this for me
   class Builder < ActionView::Helpers::FormBuilder
-    AUTOVALIDATE_JS_STRING = <<~JS.gsub(/\s+/, " ").strip.freeze
-      let s=this;
-      for (const [r, m] of Object.entries(JSON.parse(s.dataset.patternMessages))) {
-        // Ensure html encoded data is decoded (Rails encode data from builder for security)
-        let txt = document.createElement("textarea");
-        txt.innerHTML = r;
-        r = txt.value;
-        // end
-        if (!(new RegExp(r)).test(s.value)){ if(s.validationMessage !== m) {
-          s.setCustomValidity(m); s.reportValidity();} return;
-        } if(s.validity.customError){
-          s.setCustomValidity('');
-          s.reportValidity();
-          if(s.form && s.form.checkValidity()){
-            s.form.submit()
-          } return;
-        }
-      }
+    # ```javascript
+    # let s = this;
+    # for (let [r, m] of Object.entries(JSON.parse(s.dataset.patternMessages))) {
+    #     // Ensure html encoded data is decoded (Rails encode data from builder for security)
+    #     let txt = document.createElement("textarea");
+    #     txt.innerHTML = r;
+    #     r = txt.value;
+    #     // end
+    #
+    #     if (!(new RegExp(r)).test(s.value)) {
+    #         if(s.validationMessage !== m) {
+    #             s.setCustomValidity(m);
+    #             s.reportValidity();
+    #         }
+    #     } else if (s.validity.customError) {
+    #         s.setCustomValidity('');
+    #         s.reportValidity();
+    #         if (s.form && s.form.checkValidity()) {
+    #             s.form.submit()
+    #         }
+    #     }
+    # }
+    # ```
+    # Use any JS minifier and paste result here
+    AUTOVALIDATE_JS_STRING = <<~JS.freeze
+      let s=this;for(let[t,e]of Object.entries(JSON.parse(s.dataset.patternMessages))){let a=document.createElement("textarea");a.innerHTML=t,t=a.value,new RegExp(t).test(s.value)||s.validationMessage!==e&&(s.setCustomValidity(e),s.reportValidity()),s.validity.customError&&(s.setCustomValidity(""),s.reportValidity(),s.form&&s.form.checkValidity()&&s.form.submit())}
     JS
     delegate :content_tag, :tag, :safe_join, :rails_direct_uploads_url, :capture, :concat, to: :@template
 
@@ -208,17 +216,17 @@ module UnovaForm
         attrs.delete(:options)
 
         case attrs[:type]
-          when :file
-            return file_field label,
-              value: current_file_value,
-              value_url: current_file_value_url,
-              accept: current_accepted_files&.join(","),
-              value_type: current_file_type,
-              **attrs.except(:value, :placeholder, :type)
-          when :checkbox
-            return boolean_field label, checked: current_value == true, **attrs.except(:value)
-          else
-            nil
+        when :file
+          return file_field label,
+                            value: current_file_value,
+                            value_url: current_file_value_url,
+                            accept: current_accepted_files&.join(","),
+                            value_type: current_file_type,
+                            **attrs.except(:value, :placeholder, :type)
+        when :checkbox
+          return boolean_field label, checked: current_value == true, **attrs.except(:value)
+        else
+          nil
         end
 
         # import minimum / maximum value from length validator or numericality validator
@@ -232,8 +240,8 @@ module UnovaForm
         step = current_field.all_validators[:numericality].try(:[], :only_integer) ? 1 : "any"
 
         input_field label, min:, max:, step:,
-          **({ pattern:, data: { pattern_messages: pattern_messages.html_safe }, oninvalid: AUTOVALIDATE_JS_STRING } if pattern.present? && pattern_messages.present? && pattern_messages != "{}").to_h,
-          **attrs
+                    **({ pattern:, data: { pattern_messages: pattern_messages.html_safe }, oninvalid: AUTOVALIDATE_JS_STRING } if pattern.present? && pattern_messages.present? && pattern_messages != "{}").to_h,
+                    **attrs
       end
 
       # noinspection RailsParamDefResolve false positive because Object is for dynamic type
@@ -275,8 +283,8 @@ module UnovaForm
 
       def convert_regex_to_js(regex)
         safe_join([
-          regex.inspect.sub('\\A', "^").sub('\\Z', "$").sub('\\z', "$").sub(%r{^/}, "").sub(%r{/[a-z]*$}, "").gsub(/\(\?#.+\)/, "").gsub(/\(\?-\w+:/, "(")
-        ])
+                    regex.inspect.sub('\\A', "^").sub('\\Z', "$").sub('\\z', "$").sub(%r{^/}, "").sub(%r{/[a-z]*$}, "").gsub(/\(\?#.+\)/, "").gsub(/\(\?-\w+:/, "(")
+                  ])
       end
 
       def validator_to_html_pattern(validator, pattern_messages)
@@ -298,9 +306,9 @@ module UnovaForm
         # @type [String, NilClass] pattern
         # import and concat patterns from format validators
         pattern = case format_validators
-          when Array then "#{format_validators.map { |v| validator_to_html_pattern(v, pattern_messages) }.join}.*"
-          when Hash then "#{validator_to_html_pattern(format_validators, pattern_messages)}.*"
-          else return ["", "{}"]
+        when Array then "#{format_validators.map { |v| validator_to_html_pattern(v, pattern_messages) }.join}.*"
+        when Hash then "#{validator_to_html_pattern(format_validators, pattern_messages)}.*"
+        else return ["", "{}"]
         end
 
         [pattern.gsub("\"", "\\\""), pattern_messages.to_json]
@@ -381,13 +389,13 @@ module UnovaForm
         # noinspection RubyMismatchedArgumentType False positive
         if [Proc, Array].include?(current_field.options.class)
           return case current_field.options.try(:arity) # arity is the number of arguments, if arity is nil, it's a array
-            when 0 then current_field.options.try(:call)
-            when 1 then current_field.options.try(:call, current_value)
-            when 2 then current_field.options.try(:call, current_value, object)
-            when nil then current_field.options.try(:map) do |h|
-              h.deep_dup.symbolize_keys.tap { |nh| nh[:selected] = nh[:value] == current_value }
-            end
-            else nil
+          when 0 then current_field.options.try(:call)
+          when 1 then current_field.options.try(:call, current_value)
+          when 2 then current_field.options.try(:call, current_value, object)
+          when nil then current_field.options.try(:map) do |h|
+            h.deep_dup.symbolize_keys.tap { |nh| nh[:selected] = nh[:value] == current_value }
+          end
+          else nil
           end
         end
         nil
@@ -410,11 +418,11 @@ module UnovaForm
 
       def file_type_from_method_name
         case @current_method.to_s
-          when /video/, /mp4/, /avi/, /mov/, /mkv/, /webm/, /wmv/, /flv/, /ogv/, /gifv/ then :video
-          when /avatar/, /image/, /img/, /picture/, /photo/, /jpg/, /png/, /bitmap/, /gif/, /svg/, /webp/ then :img
-          when /sound/, /audio/, /mp3/, /music/, /song/, /flac/, /wav/, /ogg/, /oga/, /opus/, /m4a/, /aac/, /wma/, /alac/, /aiff/ then :audio
-          else
-            :other
+        when /video/, /mp4/, /avi/, /mov/, /mkv/, /webm/, /wmv/, /flv/, /ogv/, /gifv/ then :video
+        when /avatar/, /image/, /img/, /picture/, /photo/, /jpg/, /png/, /bitmap/, /gif/, /svg/, /webp/ then :img
+        when /sound/, /audio/, /mp3/, /music/, /song/, /flac/, /wav/, /ogg/, /oga/, /opus/, /m4a/, /aac/, /wma/, /alac/, /aiff/ then :audio
+        else
+          :other
         end
       end
 
@@ -423,10 +431,10 @@ module UnovaForm
         type = current_accepted_files || object.try(@current_method).try(:content_type) || object.try(@current_method).try(:blob).try(:content_type)
         type = type[0].to_s if type.is_a?(Array)
         case type
-          when /^image/ then :img
-          when /^video/ then :video
-          when /^audio/ then :audio
-          else file_type_from_method_name
+        when /^image/ then :img
+        when /^video/ then :video
+        when /^audio/ then :audio
+        else file_type_from_method_name
         end
       end
 
