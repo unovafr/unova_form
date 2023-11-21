@@ -180,7 +180,7 @@ module UnovaForm
       }
 
       label = nil
-      label = current_human_name_for(override_with: options[:label]) unless options[:no_label]
+      label = current_human_name_for(override_with: options[:label]).html_safe unless options[:no_label]
 
       render_field_using_attrs(label, attrs)
     end
