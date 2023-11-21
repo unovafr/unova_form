@@ -1,3 +1,5 @@
+/* theme_used: <%= @theme.to_json %> */
+/* framework_used: <%= @framework %> */
 /*
   This stylesheet was generated using "rails g unova_form:assets css"
 
@@ -162,6 +164,9 @@ div.field
       background-color: var(--input-background-color)
       width: 100%
       box-sizing: border-box
+      &:focus
+        outline: none
+        border-color: var(--input-focus-border-color)
 
     input[type="hidden"], div.field-container > input[type="hidden"]
       display: none

@@ -1,3 +1,5 @@
+/* theme_used: <%= @theme.to_json %> */
+/* framework_used: <%= @framework %> */
 /*
   This stylesheet was generated using "rails g unova_form:assets css"
 
@@ -179,6 +181,15 @@ div.field > div.field-container-full > textarea{
   width: 100%;
   box-sizing: border-box;
 }
+div.field > input:focus,
+div.field > select:focus,
+div.field > textarea:focus,
+div.field > div.field-container > input:focus,
+div.field > div.field-container > select:focus,
+div.field > div.field-container-full > textarea:focus{
+  outline: none;
+  border-color: var(--input-focus-border-color);
+}
 div.field > input[type="hidden"],
 div.field > div.field-container > input[type="hidden"]{
   display: none;
@@ -319,12 +330,15 @@ div.field[data-controller="multiselect"] > select[multiple]{
 div.field[data-controller="multiselect"] > label{
   display: block;
 }
-div.field[data-controller="multiselect"] > div.multiselect-container{
+div.field[data-controller="multiselect"] > div.multiselect-container {
   order: 1;
   position: relative;
   background: var(--input-background-color);
   border: var(--input-border-width) solid var(--input-border-color);
   border-radius: var(--input-border-radius);
+}
+div.field[data-controller="multiselect"] > div.multiselect-container.active{
+  border-color: var(--input-focus-border-color);
 }
 div.field[data-controller="multiselect"] > div.multiselect-container > div.multiselect-dropdown{
   max-height: 20vh;

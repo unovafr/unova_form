@@ -1,6 +1,7 @@
 module UnovaForm
   class AssetsGenerator
-
+    @theme: Hash[Symbol, String]
+    @framework: string
 
     def generate_asset: -> void
 
@@ -9,7 +10,14 @@ module UnovaForm
 
       def allowed_javascript_frameworks: -> Array[String]
       def allowed_javascript_schemas: -> Array[String]
-      def default_javascript_dests: -> Array[String]
+
+    def asset_type: -> string
+
+    def comment_variable_extract: (String source, String var_name)-> String?
+
+    def css_theme_from_framework: (String framework) -> Hash[Symbol, String]
+
+    def default_javascript_dests: -> Array[String]
       def existing_javascript_dest: -> String?
       def javascripts: -> void
 
@@ -18,5 +26,11 @@ module UnovaForm
       def allowed_stylesheet_schemas: -> Array[String]
       def default_stylesheet_dests: -> Array[String]
       def existing_stylesheet_dest: -> String?
+
+    def try_autodetect_framework: (Array[String] frameworks) -> String?
+
+    def try_autodetect_schema: (String destination, String filename, Array[String] schemas)-> String?
+
+    def try_parse_old_theme: (String destination, String schema, String framework) -> Hash[Symbol, String]
   end
 end

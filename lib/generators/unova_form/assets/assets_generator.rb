@@ -34,32 +34,7 @@ class UnovaForm::AssetsGenerator < Rails::Generators::NamedBase
     def allowed_javascript_schemas = %w[js ts]
     def allowed_javascript_frameworks = %w[stimulus]
 
-    def stylesheets
-      # ask for schema
-      schema = nil
-      while schema.nil?
-        schema = ask("What stylesheet schema do you want to use? (#{allowed_stylesheet_schemas.join(', ')}) default: #{allowed_stylesheet_schemas.first}")
-        schema = schema.downcase.strip
-        schema = allowed_stylesheet_schemas.first if schema.blank?
-        schema = nil unless allowed_stylesheet_schemas.include?(schema)
-      end
-
-      # ask for framework
-      framework = nil
-      while framework.nil?
-        framework = ask("What framework do you want to use? (#{allowed_stylesheet_frameworks.join(', ')}) default: #{allowed_stylesheet_frameworks.first}")
-        framework = framework.downcase.strip
-        framework = allowed_stylesheet_frameworks.first if framework.blank?
-        framework = nil unless allowed_stylesheet_frameworks.include?(framework)
-      end
-
-      # ask for destination
-      destination = existing_stylesheet_dest
-      while destination.nil?
-        destination = ask("Cannot find a valid destination, (tested: #{default_stylesheet_dests.join(', ')}), please enter a valid destination for your stylesheet files:")
-        destination = nil unless File.directory?(destination)
-      end
-
+    def css_theme_from_framework(framework)
       @theme = {}
       case framework
         when "tailwind"
@@ -141,15 +116,109 @@ class UnovaForm::AssetsGenerator < Rails::Generators::NamedBase
           @theme[:input_icon_right_padding] = "2rem"
           @theme[:input_icon_left_padding] = "2rem"
       end
+      @theme
+    end
+
+    def comment_variable_extract(source, var_name) = source.match(/\/[*\/]\s*#{var_name}:\s*(?<value>[\S ]*?)\s*(?:\s\*\/)?\n/)&.named_captures&.[]("value")
+
+    def try_parse_old_theme(destination, schema, framework)
+      path = "#{destination}/unova_form.#{schema}"
+      return unless File.exist?(path)
+
+      # theme json will be on first line of file, framework will be on second line
+      file = File.open(path)
+      str = file.readline
+      str_framework_used = file.readline
+      file.close
+
+      # check if framework is the same
+      throw "" unless comment_variable_extract(str_framework_used, "framework_used") == framework
+
+      json_var = comment_variable_extract(str, "theme_used")
+      return unless json_var.present?
+      json = JSON.parse(json_var).symbolize_keys
+
+      # check if json is valid must be a hash, and all keys must be in @theme (which is the default theme at this point)
+      return unless json.is_a?(Hash) && json.all? { |k, _| @theme.key?(k) }
+
+      say "Found existing theme on your old stylesheet, using it as default theme."
+      # set @theme to json
+      @theme = json
+    rescue
+      css_theme_from_framework(framework)
+    end
+
+    def try_autodetect_framework(frameworks)
+      framework_tr = nil
+      frameworks.each do |framework|
+        framework_tr = framework if case framework
+          # tailwind must have a config file to work properly
+          when "tailwind" then File.exist?(Rails.root.join("config", "tailwind.config.js")) ||
+            File.exist?(Rails.root.join("tailwind.config.js"))
+          # to know il stimulus is installed, we want to check if stimulus is mentioned in package.json, or importmap.rb
+          when "stimulus" then File.exist?(Rails.root.join("package.json")) && File.read(Rails.root.join("package.json")).include?("@hotwired/stimulus") ||
+            File.exist?(Rails.root.join("config", "importmap.rb")) && File.read(Rails.root.join("config", "importmap.rb")).include?("@hotwired/stimulus")
+          else nil
+        end
+      end
+      if framework_tr.present?
+        framework_tr = nil if yes?("Autodetected framework: #{framework_tr}. Do you want to change it? (y/n) |")
+      end
+      framework_tr
+    end
+
+    def try_autodetect_schema(destination, filename, schemas)
+      schema_tr = nil
+      schemas.each do |schema|
+        schema_tr = schema if File.exist?("#{destination}/#{filename}.#{schema}")
+      end
+      if schema_tr.present?
+        schema_tr = nil if yes?("Autodetected schema: #{schema_tr}. Do you want to change it? (y/n) |")
+      end
+      schema_tr
+    end
+
+    def stylesheets
+      # ask for destination
+      destination = existing_stylesheet_dest
+      while destination.nil?
+        destination = ask("Cannot find a valid destination, (tested: #{default_stylesheet_dests.join(', ')}), please enter a valid destination for your stylesheet files:")
+        destination = nil unless File.directory?(destination)
+      end
+
+      # ask for schema
+      schema = try_autodetect_schema(destination, "application", allowed_stylesheet_schemas)
+      schema ||= try_autodetect_schema(destination, "unova_form", allowed_stylesheet_schemas)
+      while schema.nil?
+        schema = ask("What stylesheet schema do you want to use? (#{allowed_stylesheet_schemas.join(', ')}) default: #{allowed_stylesheet_schemas.first}")
+        schema = schema.downcase.strip
+        schema = allowed_stylesheet_schemas.first if schema.blank?
+        schema = nil unless allowed_stylesheet_schemas.include?(schema)
+      end
+
+      # ask for framework
+      framework = try_autodetect_framework(allowed_stylesheet_frameworks)
+      while framework.nil?
+        framework = ask("What framework do you want to use? (#{allowed_stylesheet_frameworks.join(', ')}) default: #{allowed_stylesheet_frameworks.first}")
+        framework = framework.downcase.strip
+        framework = allowed_stylesheet_frameworks.first if framework.blank?
+        framework = nil unless allowed_stylesheet_frameworks.include?(framework)
+      end
+
+
+      # generate default theme
+      css_theme_from_framework(framework)
+      # try pick theme from existing stylesheet
+      try_parse_old_theme(destination, schema, framework)
 
       # say @theme and ask if want to edit
       say "Here is your theme:"
       @theme.each { |k, v| say "   #{k}: #{v}" }
-      if yes?("Do you want to edit it? (y/n)")
+      if yes?("Do you want to edit it? (y/n) |")
         # ask if step by step is wanted or not
         if yes?("Do you want to edit it step by step? (y/n), if you answer no, you will be asked if you want to edit individual values.")
           @theme.each do |k, v|
-            ans = ask("#{k}: (#{v})")
+            ans = ask("#{k}: (#{v}) |")
             @theme[k] = ans if ans.present?
           end
         else
@@ -162,7 +231,7 @@ class UnovaForm::AssetsGenerator < Rails::Generators::NamedBase
               continue if el_editing.blank?
               el_editing = el_editing.downcase.strip
               continue unless @theme.key?(el_editing)
-              @theme[el_editing] = ask("#{el_editing}: (#{@theme[el_editing]})") if @theme.key?(el_editing)
+              @theme[el_editing] = ask("#{el_editing}: (#{@theme[el_editing]}) |") if @theme.key?(el_editing)
             end
           end
         end
@@ -170,33 +239,53 @@ class UnovaForm::AssetsGenerator < Rails::Generators::NamedBase
 
       say "Generating stylesheet with schema: #{schema}, framework: #{framework} on destination: #{destination}"
 
+      @framework = framework
       case framework
-      when "tailwind"
-        template "css/tailwind/tailwind.#{schema}.erb", "#{destination}/unova_form.#{schema}"
-      else
-        template "css/vanilla/vanilla.#{schema}.erb", "#{destination}/unova_form.#{schema}"
-      end
-
-      say "Stylesheet generated, trying to add it to your application css file"
-
-      application_css = "#{destination}/application.#{schema}"
-      until File.exist?(application_css)
-        application_css = ask("Cannot find #{application_css}, please enter the relative path to your application css file:")
-      end
-
-      case application_css.split(".").last
-        when "scss"
-          prepend_to_file application_css, "@import 'unova_form';\n"
-        when "sass"
-          prepend_to_file application_css, "@import 'unova_form'\n"
+        when "tailwind"
+          template "css/tailwind/tailwind.#{schema}.erb", "#{destination}/unova_form.#{schema}"
         else
-          prepend_to_file application_css, "@import 'unova_form.css';\n"
+          template "css/vanilla/vanilla.#{schema}.erb", "#{destination}/unova_form.#{schema}"
       end
+
+      if yes?("Do you want append a stylesheet import to your application css file? (y/n) |")
+        say "Stylesheet generated, trying to add it to your application css file"
+        application_css = "#{destination}/application.#{schema}"
+        until File.exist?(application_css)
+          application_css = ask("Cannot find #{application_css}, please enter the relative path to your application css file:")
+        end
+
+        case application_css.split(".").last
+          when "scss"
+            prepend_to_file application_css, "@import 'unova_form';\n"
+          when "sass"
+            prepend_to_file application_css, "@import 'unova_form'\n"
+          else
+            prepend_to_file application_css, "@import 'unova_form.css';\n"
+        end
+      end
+
+      say ""
+      say "=================================================================="
+      say "                        Impotant notes:"
+      say "  It's not recommended to move the unova_form stylesheet, as if"
+      say "any update is made to the gem, it will be harder to re-generate it"
+      say "       and old theme used will not be pulled into generator."
+      say "   Feel free to regenerate it if you want to change the theme."
+      say "Please don't edit it directly, as it will be overwritten on update"
+      say "   prefer importing it in another css and override rules there."
+      say "=================================================================="
     end
 
     def javascripts
+      # ask for destination
+      destination = existing_javascript_dest
+      while destination.nil?
+        destination = ask("Cannot find a valid destination, (tested: #{default_javascript_dests.join(', ')}), please enter a valid destination for your javascript files:")
+        destination = nil unless File.exist?(destination)
+      end
+
       # ask for schema
-      schema = nil
+      schema = try_autodetect_schema(destination, "application", allowed_javascript_schemas)
       while schema.nil?
         schema = ask("What javascript schema do you want to use? (#{allowed_javascript_schemas.join(', ')}) default: #{allowed_javascript_schemas.first}")
         schema = schema.downcase.strip
@@ -205,7 +294,7 @@ class UnovaForm::AssetsGenerator < Rails::Generators::NamedBase
       end
 
       # ask for framework
-      framework = nil
+      framework = try_autodetect_framework(allowed_javascript_frameworks)
       while framework.nil?
         framework = ask("What framework do you want to use? (#{allowed_javascript_frameworks.join(', ')}) default: #{allowed_javascript_frameworks.first}")
         framework = framework.downcase.strip
@@ -213,31 +302,24 @@ class UnovaForm::AssetsGenerator < Rails::Generators::NamedBase
         framework = nil unless allowed_javascript_frameworks.include?(framework)
       end
 
-      # ask for destination
-      destination = existing_javascript_dest
-      while destination.nil?
-        destination = ask("Cannot find a valid destination, (tested: #{default_javascript_dests.join(', ')}), please enter a valid destination for your javascript files:")
-        destination = nil unless File.exist?(destination)
-      end
-
       say "Generating javascript with schema: #{schema}, framework: #{framework} on destination: #{destination}"
 
       # templates will be located on lib/generators/unova_form/assets/templates/js/{schema}/*
       case framework
-      when "stimulus"
-        Dir.glob(File.expand_path("templates/js/stimulus/#{schema}/controllers/*", __dir__)).each do |template|
-          template template, "#{destination}/controllers/#{File.basename(template)}"
-        end
-        Dir.glob(File.expand_path("templates/js/stimulus/#{schema}/lib/*", __dir__)).each do |template|
-          template template, "#{destination}/lib/#{File.basename(template)}"
-        end
-      else
-        Dir.glob(File.expand_path("templates/js/vanilla/#{schema}/controllers/*", __dir__)).each do |template|
-          template template, "#{destination}/#{File.basename(template)}"
-        end
-        Dir.glob(File.expand_path("templates/js/vanilla/#{schema}/lib/*", __dir__)).each do |template|
-          template template, "#{destination}/lib/#{File.basename(template)}"
-        end
+        when "stimulus"
+          Dir.glob(File.expand_path("templates/js/stimulus/#{schema}/controllers/*", __dir__)).each do |template|
+            template template, "#{destination}/controllers/#{File.basename(template)}"
+          end
+          Dir.glob(File.expand_path("templates/js/stimulus/#{schema}/lib/*", __dir__)).each do |template|
+            template template, "#{destination}/lib/#{File.basename(template)}"
+          end
+        else
+          Dir.glob(File.expand_path("templates/js/vanilla/#{schema}/controllers/*", __dir__)).each do |template|
+            template template, "#{destination}/#{File.basename(template)}"
+          end
+          Dir.glob(File.expand_path("templates/js/vanilla/#{schema}/lib/*", __dir__)).each do |template|
+            template template, "#{destination}/lib/#{File.basename(template)}"
+          end
       end
 
       if framework != "stimulus"
@@ -249,19 +331,18 @@ class UnovaForm::AssetsGenerator < Rails::Generators::NamedBase
         end
 
         case application_js.split(".").last
-        when "ts"
-          append_to_file application_js, "import 'unova_form';\n"
-        else
-          append_to_file application_js, "//= require unova_form\n"
+          when "ts"
+            append_to_file application_js, "import 'unova_form';\n"
+          else
+            append_to_file application_js, "//= require unova_form\n"
         end
       else
         say ""
         say "=============================================================="
-        say "                      Impotant note:"
+        say "                      Impotant notes:"
         say "You need stimulus and stimulus-use to be installed on your app"
         say "JS code use modern javascript, so you may need to transpile it"
         say "=============================================================="
       end
     end
-
 end

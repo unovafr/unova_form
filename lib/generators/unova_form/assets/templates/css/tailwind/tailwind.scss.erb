@@ -1,3 +1,5 @@
+// theme_used: <%= @theme.to_json %>
+// framework_used: <%= @framework %>
 // This stylesheet was generated using "rails g unova_form:assets css"
 //
 // You can change the values of the custom properties below to customize the theme
@@ -97,7 +99,7 @@ div.field {
     div.field-container > input,
     div.field-container > select,
     div.field-container-full > textarea{
-      @apply <%= @theme[:input_border_color] %> <%= @theme[:input_border_width] %> <%= @theme[:input_border_radius] %> <%= @theme[:input_padding] %> <%= @theme[:input_color] %> <%= @theme[:input_font_size] %> <%= @theme[:input_font_weight] %> <%= @theme[:input_font_family] %> <%= @theme[:input_background_color] %> w-full box-border;
+      @apply <%= @theme[:input_border_color] %> <%= @theme[:input_focus_border_color] %> <%= @theme[:input_border_width] %> <%= @theme[:input_border_radius] %> <%= @theme[:input_padding] %> <%= @theme[:input_color] %> <%= @theme[:input_font_size] %> <%= @theme[:input_font_weight] %> <%= @theme[:input_font_family] %> <%= @theme[:input_background_color] %> w-full box-border focus:outline-none;
     }
     input[type="hidden"], div.field-container > input[type="hidden"] {
       @apply hidden;
@@ -201,6 +203,9 @@ div.field {
 
       div.multiselect-container {
         @apply order-2 relative <%= @theme[:input_background_color] %> <%= @theme[:input_border_color] %> <%= @theme[:input_border_width] %> <%= @theme[:input_border_radius] %>;
+        &.active{
+          @apply <%= @theme[:input_focus_border_color].gsub("focus:", "") %>;
+        }
 
         > div {
           &.multiselect-dropdown {
@@ -297,7 +302,7 @@ div.field {
           }
 
           div.preview-container {
-            @apply flex-1 <%= @theme[:input_background_color] %> relative <%= @theme[:input_border_width] %> <%= @theme[:input_border_color] %> <%= @theme[:input_border_radius] %>;
+            @apply flex-1 <%= @theme[:input_background_color] %> relative <%= @theme[:input_border_width] %> <%= @theme[:input_border_color] %> <%= @theme[:input_focus_border_color] %> <%= @theme[:input_border_radius] %>;
 
             > {
               button {

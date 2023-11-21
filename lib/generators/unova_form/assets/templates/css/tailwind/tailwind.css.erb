@@ -1,3 +1,5 @@
+/* theme_used: <%= @theme.to_json %> */
+/* framework_used: <%= @framework %> */
 /*
   This stylesheet was generated using "rails g unova_form:assets css"
 
@@ -114,7 +116,7 @@ div.field > textarea,
 div.field > div.field-container > input,
 div.field > div.field-container > select,
 div.field > div.field-container-full > textarea{
-  @apply <%= @theme[:input_border_color] %> <%= @theme[:input_border_width] %> <%= @theme[:input_border_radius] %> <%= @theme[:input_padding] %> <%= @theme[:input_color] %> <%= @theme[:input_font_size] %> <%= @theme[:input_font_weight] %> <%= @theme[:input_font_family] %> <%= @theme[:input_background_color] %> w-full box-border;
+  @apply <%= @theme[:input_border_color] %> <%= @theme[:input_focus_border_color] %> <%= @theme[:input_border_width] %> <%= @theme[:input_border_radius] %> <%= @theme[:input_padding] %> <%= @theme[:input_color] %> <%= @theme[:input_font_size] %> <%= @theme[:input_font_weight] %> <%= @theme[:input_font_family] %> <%= @theme[:input_background_color] %> w-full box-border focus:outline-none;
 }
 div.field > input[type="hidden"],
 div.field > div.field-container > input[type="hidden"]{
@@ -220,8 +222,11 @@ div.field[data-controller="multiselect"] > select[multiple]{
 div.field[data-controller="multiselect"] > label{
   @apply block;
 }
-div.field[data-controller="multiselect"] > div.multiselect-container{
+div.field[data-controller="multiselect"] > div.multiselect-container {
   @apply order-2 relative <%= @theme[:input_background_color] %> <%= @theme[:input_border_color] %> <%= @theme[:input_border_width] %> <%= @theme[:input_border_radius] %>;
+}
+div.field[data-controller="multiselect"] > div.multiselect-container.active{
+  @apply <%= @theme[:input_focus_border_color].gsub("focus:", "") %>;
 }
 div.field[data-controller="multiselect"] > div.multiselect-container > div.multiselect-dropdown{
   @apply max-h-[20vh] <%= @theme[:input_background_color] %> <%= @theme[:input_border_radius] %> absolute left-0 right-0 overflow-y-auto opacity-0 pointer-events-none <%= @theme[:input_padding] %> z-10 shadow-md;
@@ -294,7 +299,7 @@ div.field[data-controller="file-field"] > label > span.label > span:last-child{
   @apply hidden underline;
 }
 div.field[data-controller="file-field"] > label > div.preview-container{
-  @apply flex-1 <%= @theme[:input_background_color] %> relative <%= @theme[:input_border_width] %> <%= @theme[:input_border_color] %> <%= @theme[:input_border_radius] %>;
+  @apply flex-1 <%= @theme[:input_background_color] %> relative <%= @theme[:input_border_width] %> <%= @theme[:input_focus_border_color] %> <%= @theme[:input_border_radius] %>;
 }
 div.field[data-controller="file-field"] > label > div.preview-container > button{
   @apply absolute top-0 right-0 p-1 rounded-full aspect-1 bg-inherit leading-none scale-75 brightness-90 transition-all duration-200 border-0 hidden;

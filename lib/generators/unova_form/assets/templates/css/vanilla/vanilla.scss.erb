@@ -1,3 +1,5 @@
+// theme_used: <%= @theme.to_json %>
+// framework_used: <%= @framework %>
 // This stylesheet was generated using "rails g unova_form:assets css"
 //
 // You can change the values of the custom properties below to customize the theme
@@ -145,7 +147,10 @@ div.field {
     //
     // prefer to avoid changing this rule for unique changes, and use
     // options: {input_class: "my-input-class" } instead
-    input, select, textarea {
+    input, select, textarea,
+    div.field-container > input,
+    div.field-container > select,
+    div.field-container-full > textarea {
       border-color: var(--input-border-color);
       border-width: var(--input-border-width);
       border-radius: var(--input-border-radius);
@@ -157,6 +162,10 @@ div.field {
       background-color: var(--input-background-color);
       width: 100%;
       box-sizing: border-box;
+      &:focus {
+        outline: none;
+        border-color: var(--input-focus-border-color);
+      }
     }
 
     div {
