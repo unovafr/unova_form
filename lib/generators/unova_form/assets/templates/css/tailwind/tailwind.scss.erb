@@ -169,7 +169,7 @@ div.field {
             // prefer to avoid changing this rule for unique changes, and use
             // options: {input_class: "my-input-class" } instead
             &[type="checkbox"] {
-              @apply <%= @theme[:checkbox_color] %> <%= @theme[:checkbox_size] %> <%= @theme[:checkbox_border_color] %> <%= @theme[:checkbox_border_width] %> <%= @theme[:checkbox_border_radius] %> <%= @theme[:checkbox_size] %> accent-current m-0;
+              @apply <%= @theme[:checkbox_color] %> <%= @theme[:checkbox_size] %> <%= @theme[:checkbox_border_color] %> <%= @theme[:checkbox_border_width] %> <%= @theme[:checkbox_border_radius] %> accent-current m-0;
             }
 
             // this is the radio styling, with basic styling.
@@ -177,7 +177,7 @@ div.field {
             // prefer to avoid changing this rule for unique changes, and use
             // options: {input_class: "my-input-class" } instead
             &[type="radio"] {
-              @apply <%= @theme[:radio_color] %> <%= @theme[:radio_size] %> <%= @theme[:radio_border_color] %> <%= @theme[:radio_border_width] %> <%= @theme[:radio_border_radius] %> <%= @theme[:radio_size] %> accent-current m-0;
+              @apply <%= @theme[:radio_color] %> <%= @theme[:radio_size] %> <%= @theme[:radio_border_color] %> <%= @theme[:radio_border_width] %> <%= @theme[:radio_border_radius] %> accent-current m-0;
             }
           }
         }
@@ -258,7 +258,7 @@ div.field {
             @apply flex;
 
             > input {
-              @apply border-0 <%= @theme[:input_padding] %> <%= @theme[:input_background_color] %> <%= @theme[:input_color] %> <%= @theme[:input_font_size] %> <%= @theme[:input_font_weight] %> <%= @theme[:input_font_family] %> w-full py-0 box-border outline-none h-0 transition-all duration-200;
+              @apply border-0 <%= @theme[:input_padding].gsub(/\s*py-\S*\s*/, "") %> <%= @theme[:input_background_color] %> <%= @theme[:input_color] %> <%= @theme[:input_font_size] %> <%= @theme[:input_font_weight] %> <%= @theme[:input_font_family] %> w-full py-0 box-border outline-none h-0 transition-all duration-200;
 
               &::placeholder {
                 @apply <%= @theme[:input_placeholder_color] %>;
