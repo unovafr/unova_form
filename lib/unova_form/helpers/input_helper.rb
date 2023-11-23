@@ -352,7 +352,7 @@ module UnovaForm
               :input,
               "",
               type: :file,
-              required: value&.empty? == false ? false : required,
+              required: value&.present? == false ? false : required,
               id:,
               accept:,
               name: name || id,
