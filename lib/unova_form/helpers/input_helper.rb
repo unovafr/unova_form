@@ -352,11 +352,11 @@ module UnovaForm
               :input,
               "",
               type: :file,
-              required: value&.present? == false ? false : required,
+              required: value&.present? ? false : required,
               id:,
               accept:,
               name: name || id,
-              class: array_attr([input_class, ("filled" if value&.empty? == false)]),
+              class: array_attr([input_class, ("filled" if value&.present?)]),
               aria_hidden: true,
               data: {
                 action: "change->file-field#change",
