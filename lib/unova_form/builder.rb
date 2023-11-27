@@ -32,8 +32,8 @@ module UnovaForm
     # }
     # ```
     # Use any JS minifier and paste result here
-    AUTOVALIDATE_JS_STRING = <<~JS.freeze
-      let s=this;for(let[t,e]of Object.entries(JSON.parse(s.dataset.patternMessages))){let a=document.createElement("textarea");a.innerHTML=t,t=a.value,new RegExp(t).test(s.value)||s.validationMessage!==e&&(s.setCustomValidity(e),s.reportValidity()),s.validity.customError&&(s.setCustomValidity(""),s.reportValidity(),s.form&&s.form.checkValidity()&&s.form.submit())}
+    AUTOVALIDATE_JS_STRING = <<~JS
+      let s=this;if(s.dataset.patternMessages)for(let[e,t]of Object.entries(JSON.parse(s.dataset.patternMessages))){if(!new RegExp(Object.assign(document.createElement("textarea"),{innerHTML:e}).value).test(s.value)){s.setCustomValidity(t);break}s.setCustomValidity("")}
     JS
     delegate :content_tag, :tag, :safe_join, :rails_direct_uploads_url, :capture, :concat, to: :@template
 
@@ -238,11 +238,11 @@ module UnovaForm
 
         pattern, pattern_messages = manage_format_validator
 
-        step = current_field.all_validators[:numericality].try(:[], :only_integer) ? 1 : "any"
+        step = current_field.all_validators[:numericality].try(:[], :only_integer) ? 1 : "any" if current_field.all_validators[:numericality].present?
 
         input_field label, min:, max:, step:,
-                    **({ pattern:, data: { pattern_messages: pattern_messages.html_safe }, oninvalid: AUTOVALIDATE_JS_STRING } if pattern.present? && pattern_messages.present? && pattern_messages != "{}").to_h,
-                    **attrs
+          **({ pattern:, data: { pattern_messages: pattern_messages.html_safe }, oninput: AUTOVALIDATE_JS_STRING } if pattern.present? && pattern_messages.present? && pattern_messages != "{}").to_h,
+          **attrs
       end
 
       # noinspection RailsParamDefResolve false positive because Object is for dynamic type
