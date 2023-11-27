@@ -25,7 +25,7 @@ module UnovaForm
 
       def boolean_field: (String? label, id: (String | Symbol)?, type: (String | Symbol)?, name: (String | Symbol)?, error: (ActionView::Helpers::TagHelper::TagBuilder | ActiveSupport::SafeBuffer | String)?, value: Object?, required: bool?, disabled: bool?, placeholder: (String | Symbol)?, container_class: String?, input_class: String?, label_class: String?, controller: (String | Symbol)?, checked: bool?) -> (ActionView::Helpers::TagHelper::TagBuilder | ActiveSupport::SafeBuffer)
 
-      def file_field: (String? label, id: (String | Symbol)?, value_type: (String | Symbol)?, name: (String | Symbol)?, error: (ActionView::Helpers::TagHelper::TagBuilder | ActiveSupport::SafeBuffer | String)?, value: Object?, value_url: String?, required: bool?, disabled: bool?, icon: (ActionView::Helpers::TagHelper::TagBuilder | ActiveSupport::SafeBuffer | String)?, remove_icon: (ActionView::Helpers::TagHelper::TagBuilder | ActiveSupport::SafeBuffer | String)?, accept: String?, container_class: String?, input_class: String?, label_class: String?, controller: (String | Symbol)?) -> untyped
+      def file_field: (String? label, id: (String | Symbol)?, value_type: (String | Symbol)?, name: (String | Symbol)?, error: (ActionView::Helpers::TagHelper::TagBuilder | ActiveSupport::SafeBuffer | String)?, value: Object?, value_url: String?, required: bool?, disabled: bool?, icon: (ActionView::Helpers::TagHelper::TagBuilder | ActiveSupport::SafeBuffer | String)?, remove_icon: (ActionView::Helpers::TagHelper::TagBuilder | ActiveSupport::SafeBuffer | String)?, accept: String?, container_class: String?, input_class: String?, label_class: String?, controller: (String | Symbol)?, data: Hash[Symbol, String]) -> untyped
 
       private
 
