@@ -363,7 +363,7 @@ module UnovaForm
                 action: "change->file-field#change",
                 'direct-upload-url': (options[:direct_upload_url] || rails_direct_uploads_url if options[:direct_upload_url] != "none"),
                 'form-type': :other
-              }.merge(data){|_key, old, new| "#{old} #{new}"},
+              }.merge(data){|key, old, new| key == "action" ? "#{old} #{new}" : new},
               disabled:,
               **options
             ),
