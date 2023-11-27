@@ -10,28 +10,20 @@ module UnovaForm
   class Builder < ActionView::Helpers::FormBuilder
     # ```javascript
     # let s = this;
-    # for (let [r, m] of Object.entries(JSON.parse(s.dataset.patternMessages))) {
-    #     // Ensure html encoded data is decoded (Rails encode data from builder for security)
-    #     let txt = document.createElement("textarea");
-    #     txt.innerHTML = r;
-    #     r = txt.value;
-    #     // end
-    #
-    #     if (!(new RegExp(r)).test(s.value)) {
-    #         if(s.validationMessage !== m) {
-    #             s.setCustomValidity(m);
-    #             s.reportValidity();
-    #         }
-    #     } else if (s.validity.customError) {
-    #         s.setCustomValidity('');
-    #         s.reportValidity();
-    #         if (s.form && s.form.checkValidity()) {
-    #             s.form.submit()
-    #         }
+    # if(s.dataset.patternMessages)
+    #   for (let [r, m] of Object.entries(JSON.parse(s.dataset.patternMessages))) {
+    #     if (!new RegExp(
+    #       // convert all HTML entities to characters
+    #       Object.assign(document.createElement("textarea"), {innerHTML: r}).value
+    #     ).test(s.value)) {
+    #       s.setCustomValidity(m);
+    #       break;
+    #     } else  {
+    #       s.setCustomValidity('');
     #     }
-    # }
+    #   }
     # ```
-    # Use any JS minifier and paste result here
+    # JS in variable is minified version of above code.
     AUTOVALIDATE_JS_STRING = <<~JS
       let s=this;if(s.dataset.patternMessages)for(let[e,t]of Object.entries(JSON.parse(s.dataset.patternMessages))){if(!new RegExp(Object.assign(document.createElement("textarea"),{innerHTML:e}).value).test(s.value)){s.setCustomValidity(t);break}s.setCustomValidity("")}
     JS
