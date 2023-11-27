@@ -340,7 +340,7 @@ module UnovaForm
       # @param [Symbol, String, NilClass] controller
       # @return [ActionView::Helpers::TagHelper::TagBuilder, ActiveSupport::SafeBuffer]
       # noinspection RailsI18nInspection
-      def file_field(label, id: "", value_type: :other, name: nil, error: nil, value: nil, value_url: nil, required: nil, disabled: nil, icon: nil, remove_icon: nil, accept: nil, container_class: "large", input_class: nil, label_class: nil, controller: nil, **options)
+      def file_field(label, id: "", value_type: :other, name: nil, error: nil, value: nil, value_url: nil, required: nil, disabled: nil, icon: nil, remove_icon: nil, accept: nil, container_class: "large", input_class: nil, label_class: nil, controller: nil, data: {}, **options)
         id ||= random_id
 
         icon ||= FILE_FIELD_DEFAULT_ICON
@@ -362,7 +362,7 @@ module UnovaForm
                 action: "change->file-field#change",
                 'direct-upload-url': (options[:direct_upload_url] || rails_direct_uploads_url if options[:direct_upload_url] != "none"),
                 'form-type': :other
-              },
+              }.merge(data),
               disabled:,
               **options
             ),
