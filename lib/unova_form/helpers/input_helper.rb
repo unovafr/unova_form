@@ -385,14 +385,14 @@ module UnovaForm
                   (
                     content_tag :div, class: "preview-container#{" multiple" if multiple}" do
 
-                      content_tag(:div, icon + content_tag(:span, I18n.t(:select_file), class: "filename mt-1"), class: "preview-placeholder") +
+                      content_tag(:div, icon + content_tag(:span, I18n.t(:select_file), class: "filename mt-1"), class: "preview-placeholder#{" no-preview" unless previewable}") +
                         (
                           if multiple && value
                             safe_join(value&.map_with_index do |v, i|
-                              (!previewable ? tag.div(v.filename, class: "no-preview") : content_tag(value_type, "", src: value_url[i], class: "preview", controls: value_type != :img, alt: "file_input_preview", size: "400x200"))
+                              (!previewable ? tag.div(v.filename, class: "preview") : content_tag(value_type, "", src: value_url[i], class: "preview", controls: value_type != :img, alt: "file_input_preview", size: "400x200"))
                             end)
                           else
-                            (!previewable ? tag.div(value&.filename, class: "no-preview") : content_tag(value_type, "", src: value_url, class: "preview", controls: value_type != :img, alt: "file_input_preview", size: "400x200"))
+                            (!previewable ? tag.div(value&.filename, class: "preview") : content_tag(value_type, "", src: value_url, class: "preview", controls: value_type != :img, alt: "file_input_preview", size: "400x200"))
                           end
                         ) +
                         content_tag(:button, remove_icon, data: { action: "click->file-field#reset" }, title: I18n.t(:reset), type: :button)
