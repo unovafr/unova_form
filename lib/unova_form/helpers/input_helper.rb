@@ -383,9 +383,9 @@ module UnovaForm
               content_tag :label, for: id, class: label_class.to_s do
                 content_tag(:span, tag.span(label) + tag.span(I18n.t(:edit)), class: "label") +
                   (
-                    content_tag :div, class: "preview-container#{" multiple" if multiple}" do
+                    content_tag :div, class: "preview-container#{" multiple" if multiple}#{" no-preview" unless previewable}" do
 
-                      content_tag(:div, icon + content_tag(:span, I18n.t(:select_file), class: "filename mt-1"), class: "preview-placeholder#{" no-preview" unless previewable}") +
+                      content_tag(:div, icon + content_tag(:span, I18n.t(:select_file), class: "filename mt-1"), class: "preview-placeholder") +
                         (
                           if multiple && value
                             safe_join(value&.map_with_index do |v, i|
