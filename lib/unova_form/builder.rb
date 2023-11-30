@@ -204,9 +204,9 @@ module UnovaForm
       # @param [String | NilClass] label
       # @param [Hash] attrs
       def render_field_using_attrs(label, attrs)
-        return select_field label, multiple: multiple?, **attrs unless attrs[:options].nil?
+        return select_field label, multiple: multiple?, **attrs if attrs[:options].present? && %i[select checkboxes].include?(attrs[:type])
 
-        attrs.delete(:options)
+        options = attrs.delete(:options)
 
         case attrs[:type]
           when :file
@@ -215,6 +215,7 @@ module UnovaForm
                               value_url: current_file_value_url,
                               accept: current_accepted_files&.join(","),
                               value_type: current_file_type,
+                              multiple: multiple?,
                               **attrs.except(:value, :placeholder, :type)
           when :checkbox
             return boolean_field label, checked: current_value == true, **attrs.except(:value)
@@ -232,7 +233,7 @@ module UnovaForm
 
         step = current_field.all_validators[:numericality].try(:[], :only_integer) ? 1 : "any" if current_field.all_validators[:numericality].present?
 
-        input_field label, min:, max:, step:,
+        input_field label, min:, max:, step:, options:,
           **({ pattern:, data: { pattern_messages: pattern_messages.html_safe }, oninput: AUTOVALIDATE_JS_STRING } if pattern.present? && pattern_messages.present? && pattern_messages != "{}").to_h,
           **attrs
       end

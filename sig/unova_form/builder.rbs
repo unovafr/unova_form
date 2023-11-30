@@ -65,9 +65,9 @@ module UnovaForm
 
     def multiple?: -> bool
 
-    def current_file_value: -> ActiveStorage::Blob?
+    def current_file_value: -> (ActiveStorage::Blob? | Array[ActiveStorage::Blob])
 
-    def current_file_value_url: -> String
+    def current_file_value_url: -> (String | Array[String])
 
     def file_type_from_method_name: -> Symbol
 

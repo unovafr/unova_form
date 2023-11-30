@@ -324,12 +324,20 @@ module UnovaForm
         end
       end
 
+      PREVIEWABLE_CONTENT_TYPES = [
+        *UnovaForm::FieldTypes::ImageFile::VALIDATORS[:content_type][:in],
+        *UnovaForm::FieldTypes::VideoFile::VALIDATORS[:content_type][:in],
+        *UnovaForm::FieldTypes::SoundFile::VALIDATORS[:content_type][:in],
+      ].freeze
+
       # @param [String, NilClass] label
       # @param [Symbol, String, NilClass] id
       # @param [Symbol] value_type
       # @param [Symbol, String, NilClass] name
       # @param [ActionView::Helpers::TagHelper::TagBuilder , ActiveSupport::SafeBuffer , String, NilClass] error
-      # @param [Object, NilClass] value
+      # @param [Object, Array<Object>, NilClass] value
+      # @param [ActiveStorage::Blob, Array<ActiveStorage::Blob>, NilClass] value_url
+      # @param [TrueClass, FalseClass, NilClass] multiple
       # @param [TrueClass, FalseClass, NilClass] required
       # @param [ActionView::Helpers::TagHelper::TagBuilder , ActiveSupport::SafeBuffer, String, NilClass] icon
       # @param [ActionView::Helpers::TagHelper::TagBuilder , ActiveSupport::SafeBuffer, String, NilClass] remove_icon
@@ -341,11 +349,15 @@ module UnovaForm
       # @param [Hash{Symbol => String}] data
       # @return [ActionView::Helpers::TagHelper::TagBuilder, ActiveSupport::SafeBuffer]
       # noinspection RailsI18nInspection
-      def file_field(label, id: "", value_type: :other, name: nil, error: nil, value: nil, value_url: nil, required: nil, disabled: nil, icon: nil, remove_icon: nil, accept: nil, container_class: "large", input_class: nil, label_class: nil, controller: nil, data: {}, **options)
+      def file_field(label, id: "", value_type: :other, name: nil, error: nil, value: nil, value_url: nil, multiple: nil, required: nil, disabled: nil, icon: nil, remove_icon: nil, accept: nil, container_class: "large", input_class: nil, label_class: nil, controller: nil, data: {}, **options)
         id ||= random_id
 
         icon ||= FILE_FIELD_DEFAULT_ICON
         remove_icon ||= "X".html_safe.freeze
+
+        previewable = accept.present? && accept&.split(",")&.any? { |t| PREVIEWABLE_CONTENT_TYPES.include?(t) } || value_type != :other
+
+        name += "[]" if multiple && name.present?
 
         field_container(nil, id:, type: :file, error:, container_class:, label_class:, controller:, omit_subcontainer: true) do
           safe_join([
@@ -371,9 +383,18 @@ module UnovaForm
               content_tag :label, for: id, class: label_class.to_s do
                 content_tag(:span, tag.span(label) + tag.span(I18n.t(:edit)), class: "label") +
                   (
-                    content_tag :div, class: "preview-container" do
+                    content_tag :div, class: "preview-container#{" multiple" if multiple}" do
+
                       content_tag(:div, icon + content_tag(:span, I18n.t(:select_file), class: "filename mt-1"), class: "preview-placeholder") +
-                        (value_type == :other ? tag.div(nil, class: "preview") : content_tag(value_type, "", src: value_url, class: "preview", controls: value_type != :img, alt: "file_input_preview", size: "400x200")) +
+                        (
+                          if multiple && value
+                            safe_join(value&.map_with_index do |v, i|
+                              (!previewable ? tag.div(v.filename, class: "no-preview") : content_tag(value_type, "", src: value_url[i], class: "preview", controls: value_type != :img, alt: "file_input_preview", size: "400x200"))
+                            end)
+                          else
+                            (!previewable ? tag.div(value&.filename, class: "no-preview") : content_tag(value_type, "", src: value_url, class: "preview", controls: value_type != :img, alt: "file_input_preview", size: "400x200"))
+                          end
+                        ) +
                         content_tag(:button, remove_icon, data: { action: "click->file-field#reset" }, title: I18n.t(:reset), type: :button)
                     end
                   )
