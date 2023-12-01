@@ -3,18 +3,21 @@
 import StimulusController from "../lib/stimulus_controller";
 
 export default class extends StimulusController {
-  previewType: "img" | "video" | "audio" | "div" = "img"
-
+  previewType: "img" | "video" | "audio" | "div" = "div"
 
   get previewEls(): (HTMLImageElement | HTMLVideoElement | HTMLAudioElement | HTMLDivElement)[] {
     let previewEl = Array.from(this.findAllEl<HTMLImageElement | HTMLVideoElement | HTMLAudioElement | HTMLDivElement>("label .preview"));
     if (previewEl?.every(e => e.tagName === this.previewType.toUpperCase())) return previewEl;
     previewEl?.forEach(el => el.remove());
+    previewEl = [];
     let previewContainer = this.findEl("label .preview-container");
     if (!previewContainer) {
       previewContainer = document.createElement("div")
       previewContainer.classList.add("preview-container")
     } else previewContainer.classList.remove("hidden")
+
+    if(this.previewType === "div") previewContainer.classList.add("no-preview")
+    else previewContainer.classList.remove("no-preview")
 
     previewEl[0] ||= document.createElement(this.previewType)
     previewEl[0].classList.add("preview")
@@ -39,9 +42,6 @@ export default class extends StimulusController {
     return previewEl
   }
 
-  /**
-   * @returns {string[]}
-   */
   get previews() {
     return this.previewEls.map(el => (el instanceof HTMLMediaElement) && el.srcObject ||
       !(el instanceof HTMLDivElement) && el.src ||
@@ -69,7 +69,7 @@ export default class extends StimulusController {
       if (previewEl instanceof HTMLMediaElement && typeof v !== "string") {
         try {
           previewEl.srcObject = v;
-        } catch (err) {
+        } catch (err: any) {
           if (!(err instanceof TypeError) || v instanceof MediaStream) throw err;
           previewEl.src = v ? URL.createObjectURL(v) : "";
         }
@@ -100,9 +100,6 @@ export default class extends StimulusController {
     this.previewTextsEl.innerText = v
   }
 
-  /**
-   * @param {number} v
-   */
   set displayedPreview(v) {
     let previewEls = this.previewEls;
     if (v >= previewEls.length) v = previewEls.length - 1;
@@ -125,7 +122,7 @@ export default class extends StimulusController {
       else if (input.accept.includes("audio")) this.previewType = "audio"
       else this.previewType = "div"
     } else {
-      const previewEls = this.previewEls;
+      const previewEls = Array.from(this.findAllEl("label .preview"));
       if(previewEls.every(e => e instanceof HTMLImageElement)) this.previewType = "img"
       else if(previewEls.every(e => e instanceof HTMLVideoElement)) this.previewType = "video"
       else if(previewEls.every(e => e instanceof HTMLAudioElement)) this.previewType = "audio"
@@ -142,7 +139,7 @@ export default class extends StimulusController {
 
   updateButtons(){
     const container = this.findEl<HTMLDivElement>("label .preview-container")
-    if(this.previewEls.length > 1 && container) {
+    if(this.previewEls.length > 1 && container && this.previewType !== "div") {
       let [prev, next] = [
         container.querySelector<HTMLButtonElement>("button.prev"),
         container.querySelector<HTMLButtonElement>("button.next")
@@ -189,14 +186,14 @@ export default class extends StimulusController {
       this.previews = files;
 
       if(this.previewType !== "div") {
-        this.displayedPreview = 0;
         this.previewTexts = files.map(e => e.name).join(" | ");
-        this.updateButtons();
+        this.displayedPreview = 0;
       } else {
         this.updateDivPreviewEls();
         this.previewTexts = "";
         this.displayedPreview = 0;
       }
+      this.updateButtons();
     } else {
       event.target.classList.remove("filled");
       this.previews = [];
