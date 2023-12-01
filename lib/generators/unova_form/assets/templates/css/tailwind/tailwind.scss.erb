@@ -382,7 +382,7 @@ div.field {
 
               div {
                 &.preview {
-                  @apply w-full h-full absolute inset-0 flex items-center <%= @theme[:input_border_radius] %> <%= @theme[:input_background_color] %> cursor-auto;
+                  @apply w-full h-full absolute inset-0 flex items-center <%= @theme[:input_border_radius] %> <%= @theme[:input_background_color] %> cursor-auto whitespace-nowrap overflow-hidden text-ellipsis;
 
                   &:empty {
                     @apply hidden;
