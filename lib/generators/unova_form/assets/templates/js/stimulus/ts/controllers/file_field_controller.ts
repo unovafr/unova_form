@@ -5,61 +5,85 @@ import StimulusController from "../lib/stimulus_controller";
 export default class extends StimulusController {
   previewType: "img" | "video" | "audio" | "div" = "img"
 
-  get previewEl(): HTMLMediaElement | HTMLImageElement | HTMLDivElement {
-    let previewEl = this.findEl<HTMLMediaElement | HTMLImageElement | HTMLDivElement>("label .preview");
-    if (previewEl?.tagName == this.previewType.toUpperCase()) return previewEl;
-    previewEl?.remove();
+
+  get previewEls(): (HTMLImageElement | HTMLVideoElement | HTMLAudioElement | HTMLDivElement)[] {
+    let previewEl = Array.from(this.findAllEl<HTMLImageElement | HTMLVideoElement | HTMLAudioElement | HTMLDivElement>("label .preview"));
+    if (previewEl?.every(e => e.tagName === this.previewType.toUpperCase())) return previewEl;
+    previewEl?.forEach(el => el.remove());
     let previewContainer = this.findEl("label .preview-container");
     if (!previewContainer) {
       previewContainer = document.createElement("div")
       previewContainer.classList.add("preview-container")
     } else previewContainer.classList.remove("hidden")
 
-    previewEl ||= document.createElement(this.previewType)
-    previewEl.classList.add("preview")
+    previewEl[0] ||= document.createElement(this.previewType)
+    previewEl[0].classList.add("preview")
 
     let resetButton = this.findEl(`button[data-action="click->file-field#reset"]`)
-    if (resetButton) resetButton.insertAdjacentElement("beforebegin", previewEl)
-    else previewContainer.insertAdjacentElement("beforeend", previewEl)
+    if (resetButton) previewEl.forEach(el => resetButton!.insertAdjacentElement("beforebegin", el))
+    else previewContainer.append(...previewEl)
 
-    !(previewEl instanceof HTMLImageElement) && !(previewEl instanceof HTMLDivElement) && (previewEl.controls = true);
+    previewEl.forEach(el => {
+      !(el instanceof HTMLImageElement) && !(el instanceof HTMLDivElement) && (el.controls = true);
+    })
 
     return previewEl
   }
 
-  get preview() {
-    return (this.previewEl instanceof HTMLMediaElement) && this.previewEl.srcObject ||
-      !(this.previewEl instanceof HTMLDivElement) && this.previewEl.src ||
-      this.previewEl.innerText
+  get newPreviewEl() {
+    let previewEl = document.createElement(this.previewType)
+    previewEl.classList.add("preview")
+    !(previewEl instanceof HTMLImageElement) && !(previewEl instanceof HTMLDivElement) && (previewEl.controls = true);
+    const currEls = this.previewEls
+    currEls[currEls.length - 1].insertAdjacentElement("afterend", previewEl)
+    return previewEl
   }
 
-  set preview(v: string | MediaProvider | null) {
-    let previewEl = this.previewEl;
-    if (previewEl instanceof HTMLDivElement){
-      previewEl.innerText = (v instanceof File) && v?.name || v?.toString() || "";
-      return
-    }
-    if(v == null) {
-      previewEl.src = "";
-      return
-    }
-    if (previewEl instanceof HTMLMediaElement && typeof v !== "string") {
-      try {
-        previewEl.srcObject = v;
-      } catch (err: any) {
-        if (!(err instanceof TypeError) || v instanceof MediaStream) throw err;
-        previewEl.src = v ? URL.createObjectURL(v) : "";
+  /**
+   * @returns {string[]}
+   */
+  get previews() {
+    return this.previewEls.map(el => (el instanceof HTMLMediaElement) && el.srcObject ||
+      !(el instanceof HTMLDivElement) && el.src ||
+      el.innerText)
+  }
+
+  set previews(vs) {
+    let previewEls = this.previewEls;
+    if (vs.length > previewEls.length) {
+      for (let i = previewEls.length; i < vs.length; i++) {
+        previewEls.push(this.newPreviewEl)
       }
-    } else if (typeof v === "string") {
-      previewEl.src = v || "";
-    } else if ((v instanceof File)) {
-      previewEl.src = v ? URL.createObjectURL(v) : "";
-    } else {
-      console.warn("Preview value type not supported")
+    }
+    for (const i in previewEls) {
+      const v = vs[i];
+      if(!v) {
+        previewEls[i]?.remove();
+        continue;
+      }
+      let previewEl = previewEls[i];
+      if (previewEl instanceof HTMLDivElement) {
+        previewEl.innerText = (v instanceof File) && v?.name || v?.toString() || "";
+        continue
+      }
+      if (previewEl instanceof HTMLMediaElement && typeof v !== "string") {
+        try {
+          previewEl.srcObject = v;
+        } catch (err) {
+          if (!(err instanceof TypeError) || v instanceof MediaStream) throw err;
+          previewEl.src = v ? URL.createObjectURL(v) : "";
+        }
+      } else if (typeof v === "string") {
+        previewEl.src = v || "";
+      } else if ((v instanceof File)) {
+        previewEl.src = v ? URL.createObjectURL(v) : "";
+      } else {
+        console.warn("Preview value type not supported")
+      }
     }
   }
 
-  get previewTextEl(): HTMLDivElement {
+  get previewTextsEl() : HTMLDivElement {
     let previewTextEl = this.findEl<HTMLDivElement>("label div.filename");
     if (previewTextEl) return previewTextEl;
     previewTextEl = document.createElement("div");
@@ -68,30 +92,114 @@ export default class extends StimulusController {
     return previewTextEl
   }
 
-  get previewText() {
-    return this.previewTextEl.innerText
+  get previewTexts() {
+    return this.previewTextsEl.innerText
   }
 
-  set previewText(v) {
-    this.previewTextEl.innerText = v
+  set previewTexts(v) {
+    this.previewTextsEl.innerText = v
+  }
+
+  /**
+   * @param {number} v
+   */
+  set displayedPreview(v) {
+    let previewEls = this.previewEls;
+    if (v >= previewEls.length) v = previewEls.length - 1;
+    if (v < 0) v = 0;
+    previewEls.forEach((el, i) =>
+      el.style.display = !el.matches('video[src=""],audio[src=""],img[src=""],div:empty') && i === v
+        ? ""
+        : "none"
+    )
+  }
+  get displayedPreview() {
+    return this.previewEls.findIndex(el => el.style.display !== "none")
+  }
+
+  determinePreviewType() {
+    let input = this.findEl<HTMLInputElement>("input[type=file]", "Cannot determine preview type: not found");
+    if("accept" in input && input.accept) {
+      if (input.accept.includes("image")) this.previewType = "img"
+      else if (input.accept.includes("video")) this.previewType = "video"
+      else if (input.accept.includes("audio")) this.previewType = "audio"
+      else this.previewType = "div"
+    } else {
+      const previewEls = this.previewEls;
+      if(previewEls.every(e => e instanceof HTMLImageElement)) this.previewType = "img"
+      else if(previewEls.every(e => e instanceof HTMLVideoElement)) this.previewType = "video"
+      else if(previewEls.every(e => e instanceof HTMLAudioElement)) this.previewType = "audio"
+      else this.previewType = "div"
+    }
   }
 
   connect() {
+    this.determinePreviewType()
+    this.updateButtons();
+    this.updateDivPreviewEls();
+    this.displayedPreview = 0;
   }
 
-  change(event: InputEvent & { target: HTMLInputElement }) {
-    let files = event.target.files;
+  updateButtons(){
+    const container = this.findEl<HTMLDivElement>("label .preview-container")
+    if(this.previewEls.length > 1 && container) {
+      let [prev, next] = [
+        container.querySelector<HTMLButtonElement>("button.prev"),
+        container.querySelector<HTMLButtonElement>("button.next")
+      ]
+      if(!prev) {
+        prev = document.createElement("button")
+        prev.classList.add("prev")
+        prev.type = "button"
+        prev.addEventListener("click", () => this.displayedPreview--)
+        container.insertAdjacentElement("afterbegin", prev)
+      }
+      if(!next) {
+        next = document.createElement("button")
+        next.classList.add("next")
+        next.type = "button"
+        next.addEventListener("click", () => this.displayedPreview++)
+        container.insertAdjacentElement("beforeend", next)
+      }
+    } else if (container) {
+      container.querySelectorAll("button.prev, button.next").forEach(e => e.remove())
+    }
+  }
+
+  updateDivPreviewEls(){
+    if(this.previewType !== "div") return;
+    let [first, ...previewEls] = this.previewEls;
+    if(!first) return;
+    if(previewEls.length) first.innerText += " | "
+    first.innerText += previewEls.map(e => e.innerText).join(" | ");
+    previewEls.forEach(e => e.remove())
+  }
+
+  change(event: InputEvent) {
+    if(!(event.target instanceof HTMLInputElement)) throw new Error("Cannot change file field: not found");
+    if(!event.target.files) throw new Error("Cannot change file field: no files");
+    let files = Array.from(event.target.files);
     if (files?.length) {
       event.target.classList.add("filled")
-      let file = files[0];
-      if (file.type.startsWith("image")) this.previewType = "img";
-      if (file.type.startsWith("video")) this.previewType = "video";
-      if (file.type.startsWith("audio")) this.previewType = "audio";
-      this.preview = file;
-      this.previewText = file.name;
+      if (files.every(e => e.type.startsWith("image"))) this.previewType = "img"
+      else if (files.every(e => e.type.startsWith("video"))) this.previewType = "video"
+      else if (files.every(e => e.type.startsWith("audio"))) this.previewType = "audio"
+      else this.previewType = "div"
+
+      this.previews = files;
+
+      if(this.previewType !== "div") {
+        this.displayedPreview = 0;
+        this.previewTexts = files.map(e => e.name).join(" | ");
+        this.updateButtons();
+      } else {
+        this.updateDivPreviewEls();
+        this.displayedPreview = 0;
+      }
     } else {
       event.target.classList.remove("filled");
-      this.preview = null;
+      this.previews = [];
+      this.previewTexts = "";
     }
   }
 

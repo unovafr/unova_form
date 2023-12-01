@@ -200,6 +200,38 @@ div.field > div.field-container > input[type="color"]{
 }
 
 /*
+  this for the number input, when you use options on f.field: {type: :number},
+  with {with_controls: true} and optionally {with_controls_on_input: true},
+*/
+div.field > div.field-container > input.with-controls-on-input{
+  padding: 0 2rem;
+}
+div.field > div.field-container > button.field-number-minus,
+div.field > div.field-container > button.field-number-plus{
+  padding: .75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+div.field > div.field-container > button.field-number-minus.on-input,
+div.field > div.field-container > button.field-number-plus.on-input{
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
+div.field > div.field-container > button.field-number-minus{
+  left: 0;
+}
+div.field > div.field-container > button.field-number-plus{
+  right: 0;
+}
+div.field[data-controller="number-field"] > div.field-container{
+  flex-direction: row;
+  gap: 0.5rem;
+}
+
+/*
   this is the input, select, textarea placeholder styling, with basic styling.
   (i know that select doesn't have placeholder, but if there is a future update, we are ready)
 */
@@ -471,7 +503,6 @@ div.field[data-controller="file-field"] > label{
   display: flex;
   flex-direction: column;
   gap: var(--label-input-error-gap);
-  height: 9rem;
   cursor: pointer;
   font-weight: bold;
 }
@@ -485,13 +516,21 @@ div.field[data-controller="file-field"] > label > span.label > span:last-child{
   text-decoration: underline;
 }
 div.field[data-controller="file-field"] > label > div.preview-container{
-  flex: 1;
   background: var(--input-background-color);
   position: relative;
   border: var(--input-border-width) solid var(--input-border-color);
   border-radius: var(--input-border-radius);
 }
-div.field[data-controller="file-field"] > label > div.preview-container > button{
+div.field[data-controller="file-field"] > label > div.preview-container:not(.no-preview).multiple{
+  margin: 0 2rem;
+}
+div.field[data-controller="file-field"] > label > div.preview-container:not(.no-preview){
+  height: 6rem;
+}
+div.field[data-controller="file-field"] > label > div.preview-container.no-preview{
+  width: 100%;
+}
+div.field[data-controller="file-field"] > label > div.preview-container > button:not(.next):not(.prev){
   position: absolute;
   top: 0;
   right: 0;
@@ -506,7 +545,7 @@ div.field[data-controller="file-field"] > label > div.preview-container > button
   border: none;
   display: none;
 }
-div.field[data-controller="file-field"] > label > div.preview-container > button:hover{
+div.field[data-controller="file-field"] > label > div.preview-container > button:not(.next):not(.prev):hover{
   filter: brightness(.8);
 }
 div.field[data-controller="file-field"] > label > div.preview-container > div.preview-placeholder{
@@ -525,8 +564,13 @@ div.field[data-controller="file-field"] > label > div.preview-container > div.pr
 }
 div.field[data-controller="file-field"] > label > div.preview-container > div.preview-placeholder > i,
 div.field[data-controller="file-field"] > label > div.preview-container > div.preview-placeholder > svg{
-  font-size: 2.25rem;
-  width: 2.25rem;
+  font-size: 2rem;
+  width: 2rem;
+}
+div.field[data-controller="file-field"] > label > div.preview-container.no-preview > div.preview-placeholder > i,
+div.field[data-controller="file-field"] > label > div.preview-container.no-preview > div.preview-placeholder > svg{
+  font-size: 1.25em;
+  width: 1.25em;
 }
 div.field[data-controller="file-field"] > label > div.preview-container > video.preview,
 div.field[data-controller="file-field"] > label > div.preview-container > img.preview,
@@ -554,21 +598,54 @@ div.field[data-controller="file-field"] > label > div.preview-container > div.pr
   inset: 0;
   display: flex;
   align-items: center;
-  justify-content: center;
   text-align: center;
   border-radius: var(--input-border-radius);
   background: var(--input-background-color);
   cursor: auto;
+  font-weight: 400;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 div.field[data-controller="file-field"] > label > div.preview-container > div.preview:empty{
   display: none;
 }
-div.field[data-controller="file-field"] > label > div.preview-container > div.filename{
+div.field[data-controller="file-field"] > label > div.preview-container + div.filename{
   text-decoration: underline;
   font-weight: bold;
   font-size: var(--input-font-size);
   font-family: var(--input-font-family);
   color: var(--input-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+div.field[data-controller="file-field"] > label > div.preview-container > button.next,
+div.field[data-controller="file-field"] > label > div.preview-container > button.prev{
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  padding: .5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+div.field[data-controller="file-field"] > label > div.preview-container > button.next{
+  right: 0;
+  transform: translateX(100%);
+}
+div.field[data-controller="file-field"] > label > div.preview-container > button.next::after{
+  content: ">";
+  transform: scaleY(1.1);
+}
+div.field[data-controller="file-field"] > label > div.preview-container > button.prev{
+  left: 0;
+  transform: translateX(-100%);
+}
+div.field[data-controller="file-field"] > label > div.preview-container > button.prev::after{
+  content: "<";
+  transform: scaleY(1.1);
 }
 div.field[data-controller="file-field"] > input[type="file"]:placeholder-shown + label > span.label > span:last-child,
 div.field[data-controller="file-field"] > input[type="file"].filled + label > span.label > span:last-child{
@@ -578,9 +655,9 @@ div.field[data-controller="file-field"] > input[type="file"]:placeholder-shown +
 div.field[data-controller="file-field"] > input[type="file"].filled + label > div.preview-container > button{
   display: flex;
 }
-div.field[data-controller="file-field"].large > label{
-  height: 12rem;
+div.field[data-controller="file-field"].large > label > div.preview-container:not(.no-preview){
+  height: 9rem;
 }
-div.field[data-controller="file-field"].xlarge > label{
-  height: 16rem;
+div.field[data-controller="file-field"].xlarge > label > div.preview-container:not(.no-preview){
+  height: 12rem;
 }

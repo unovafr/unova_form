@@ -371,11 +371,12 @@ module UnovaForm
               name: name || id,
               class: array_attr([input_class, ("filled" if value&.present?)]),
               aria_hidden: true,
+              multiple:,
               data: {
                 action: "change->file-field#change",
                 'direct-upload-url': (options[:direct_upload_url] || rails_direct_uploads_url if options[:direct_upload_url] != "none"),
                 'form-type': :other
-              }.merge(data){|key, old, new| key == "action" ? "#{old} #{new}" : new},
+              }.merge(data){ |key, old, new| key == "action" ? "#{old} #{new}" : new },
               disabled:,
               **options
             ),

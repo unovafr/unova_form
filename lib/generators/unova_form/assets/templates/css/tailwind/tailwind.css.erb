@@ -128,6 +128,31 @@ div.field > div.field-container > input[type="color"]{
 }
 
 /*
+  this for the number input, when you use options on f.field: {type: :number},
+  with {with_controls: true} and optionally {with_controls_on_input: true},
+*/
+div.field > div.field-container > input.with-controls-on-input{
+  @apply px-8;
+}
+div.field > div.field-container > button.field-number-minus,
+div.field > div.field-container > button.field-number-plus{
+  @apply p-3 flex items-center justify-center leading-none;
+}
+div.field > div.field-container > button.field-number-minus.on-input,
+div.field > div.field-container > button.field-number-plus.on-input{
+  @apply absolute inset-y-0;
+}
+div.field > div.field-container > button.field-number-minus{
+  @apply left-0;
+}
+div.field > div.field-container > button.field-number-plus{
+  @apply right-0;
+}
+div.field[data-controller="number-field"] > div.field-container{
+  @apply flex-row gap-2;
+}
+
+/*
   this is the input, select, textarea placeholder styling, with basic styling.
   (i know that select doesn't have placeholder, but if there is a future update, we are ready)
 */
@@ -195,7 +220,7 @@ div.field > div.field-container > div.field-checkboxes-item{
   options: {input_class: "my-input-class" } instead
 */
 div.field > div.field-container > div.field-checkboxes-item > input[type="checkbox"]{
-  @apply <%= @theme[:checkbox_color] %> <%= @theme[:checkbox_size] %> <%= @theme[:checkbox_border_color] %> <%= @theme[:checkbox_border_width] %> <%= @theme[:checkbox_border_radius] %> <%= @theme[:checkbox_size] %> accent-current m-0;
+  @apply <%= @theme[:checkbox_color] %> <%= @theme[:checkbox_size] %> <%= @theme[:checkbox_border_color] %> <%= @theme[:checkbox_border_width] %> <%= @theme[:checkbox_border_radius] %> accent-current m-0;
 }
 
 /*
@@ -205,7 +230,7 @@ div.field > div.field-container > div.field-checkboxes-item > input[type="checkb
   options: {input_class: "my-input-class" } instead
 */
 div.field > div.field-container > div.field-checkboxes-item > input[type="radio"]{
-  @apply <%= @theme[:radio_color] %> <%= @theme[:radio_size] %> <%= @theme[:radio_border_color] %> <%= @theme[:radio_border_width] %> <%= @theme[:radio_border_radius] %> <%= @theme[:radio_size] %> accent-current m-0;
+  @apply <%= @theme[:radio_color] %> <%= @theme[:radio_size] %> <%= @theme[:radio_border_color] %> <%= @theme[:radio_border_width] %> <%= @theme[:radio_border_radius] %> accent-current m-0;
 }
 
 /*
@@ -290,7 +315,7 @@ div.field[data-controller="file-field"] > input[type="file"]{
   @apply opacity-0 h-px;
 }
 div.field[data-controller="file-field"] > label{
-  @apply flex flex-col <%= @theme[:label_input_error_gap] %> h-36 cursor-pointer font-bold;
+  @apply flex flex-col <%= @theme[:label_input_error_gap] %> cursor-pointer font-bold;
 }
 div.field[data-controller="file-field"] > label > span.label{
   @apply flex justify-between items-center;
@@ -299,12 +324,21 @@ div.field[data-controller="file-field"] > label > span.label > span:last-child{
   @apply hidden underline;
 }
 div.field[data-controller="file-field"] > label > div.preview-container{
-  @apply flex-1 <%= @theme[:input_background_color] %> relative <%= @theme[:input_border_width] %> <%= @theme[:input_focus_border_color] %> <%= @theme[:input_border_radius] %>;
+  @apply <%= @theme[:input_background_color] %> relative <%= @theme[:input_border_width] %> <%= @theme[:input_focus_border_color] %> <%= @theme[:input_border_radius] %>;
 }
-div.field[data-controller="file-field"] > label > div.preview-container > button{
+div.field[data-controller="file-field"] > label > div.preview-container:not(.no-preview).multiple{
+  @apply mx-8;
+}
+div.field[data-controller="file-field"] > label > div.preview-container:not(.no-preview){
+  @apply h-24;
+}
+div.field[data-controller="file-field"] > label > div.preview-container.no-preview{
+  @apply w-full;
+}
+div.field[data-controller="file-field"] > label > div.preview-container > button:not(.next):not(.prev){
   @apply absolute top-0 right-0 p-1 rounded-full aspect-1 bg-inherit leading-none scale-75 brightness-90 transition-all duration-200 border-0 hidden;
 }
-div.field[data-controller="file-field"] > label > div.preview-container > button:hover{
+div.field[data-controller="file-field"] > label > div.preview-container > button:not(.next):not(.prev):hover{
   @apply brightness-75;
 }
 div.field[data-controller="file-field"] > label > div.preview-container > div.preview-placeholder{
@@ -314,6 +348,11 @@ div.field[data-controller="file-field"] > label > div.preview-container > div.pr
 div.field[data-controller="file-field"] > label > div.preview-container > div.preview-placeholder > svg{
   font-size: 2em;
   width: 2em;
+}
+div.field[data-controller="file-field"] > label > div.preview-container.no-preview > div.preview-placeholder > i,
+div.field[data-controller="file-field"] > label > div.preview-container.no-preview > div.preview-placeholder > svg{
+  font-size: 1.25em;
+  width: 1.25em;
 }
 div.field[data-controller="file-field"] > label > div.preview-container > video.preview,
 div.field[data-controller="file-field"] > label > div.preview-container > img.preview,
@@ -326,13 +365,31 @@ div.field[data-controller="file-field"] > label > div.preview-container > audio.
   @apply hidden;
 }
 div.field[data-controller="file-field"] > label > div.preview-container > div.preview{
-  @apply w-full h-full absolute inset-0 flex items-center justify-center <%= @theme[:input_border_radius] %> <%= @theme[:input_background_color] %> cursor-auto;
+  @apply w-full h-full absolute inset-0 flex items-center <%= @theme[:input_border_radius] %> <%= @theme[:input_background_color] %> cursor-auto font-normal whitespace-nowrap overflow-hidden text-ellipsis;
 }
 div.field[data-controller="file-field"] > label > div.preview-container > div.preview:empty{
   @apply hidden;
 }
-div.field[data-controller="file-field"] > label > div.preview-container > div.filename{
-  @apply underline font-bold <%= @theme[:input_font_size] %> <%= @theme[:input_font_family] %> <%= @theme[:input_color] %>;
+div.field[data-controller="file-field"] > label > div.preview-container + div.filename{
+  @apply underline font-bold <%= @theme[:input_font_size] %> <%= @theme[:input_font_family] %> <%= @theme[:input_color] %> font-normal whitespace-nowrap overflow-hidden text-ellipsis w-full;
+}
+div.field[data-controller="file-field"] > label > div.preview-container > button.next,
+div.field[data-controller="file-field"] > label > div.preview-container > button.prev{
+  @apply absolute inset-y-0 p-2 flex items-center justify-center;
+}
+div.field[data-controller="file-field"] > label > div.preview-container > button.next{
+  @apply right-0 translate-x-full;
+}
+div.field[data-controller="file-field"] > label > div.preview-container > button.next::after{
+  content: ">";
+  @apply scale-y-110;
+}
+div.field[data-controller="file-field"] > label > div.preview-container > button.prev{
+  @apply left-0 -translate-x-full;
+}
+div.field[data-controller="file-field"] > label > div.preview-container > button.prev::after{
+  content: "<";
+  @apply scale-y-110;
 }
 div.field[data-controller="file-field"] > input[type="file"]:placeholder-shown + label > span.label > span:last-child,
 div.field[data-controller="file-field"] > input[type="file"].filled + label > span.label > span:last-child{
@@ -342,9 +399,9 @@ div.field[data-controller="file-field"] > input[type="file"]:placeholder-shown +
 div.field[data-controller="file-field"] > input[type="file"].filled + label > div.preview-container > button{
   @apply flex;
 }
-div.field[data-controller="file-field"].large > label{
-  @apply h-48;
+div.field[data-controller="file-field"].large > label > div.preview-container:not(.no-preview){
+  @apply h-36;
 }
-div.field[data-controller="file-field"].xlarge > label{
-  @apply h-64;
+div.field[data-controller="file-field"].xlarge > label > div.preview-container:not(.no-preview){
+  @apply h-48;
 }

@@ -175,6 +175,36 @@ div.field
       padding: 0
 
     /*
+      this for the number input, when you use options on f.field: {type: :number},
+      with {with_controls: true} and optionally {with_controls_on_input: true},
+    div.field-container
+      >
+        input.with-controls-on-input
+        padding: 0 2rem
+
+        button.field-number-minus,
+        button.field-number-plus
+          padding: .75rem
+          display: flex
+          align-items: center
+          justify-content: center
+          line-height: 1
+          &.on-input
+            position: absolute
+            top: 0
+            bottom: 0
+
+        button.field-number-minus
+          left: 0
+        button.field-number-plus
+          right: 0
+
+  &[data-controller="number-field"] > div.field-container
+    flex-direction: row
+    gap: 0.5rem
+
+  >
+    /*
       this is the input, select, textarea placeholder styling, with basic styling.
       (i know that select doesn't have placeholder, but if there is a future update, we are ready)
     input::placeholder, select::placeholder, textarea::placeholder,
@@ -436,7 +466,6 @@ div.field
         display: flex
         flex-direction: column
         gap: var(--label-input-error-gap)
-        height: 9rem
         cursor: pointer
         font-weight: bold
 
@@ -451,14 +480,19 @@ div.field
               text-decoration: underline
 
           div.preview-container
-            flex: 1
             background: var(--input-background-color)
             position: relative
             border: var(--input-border-width) solid var(--input-border-color)
             border-radius: var(--input-border-radius)
+            &:not(.no-preview).multiple
+              margin: 0 2rem
+            &:not(.no-preview)
+              height: 6rem
+            &.no-preview
+              width: 100%
 
             >
-              button
+              button:not(.next):not(.prev)
                 position: absolute
                 top: 0
                 right: 0
@@ -492,8 +526,8 @@ div.field
 
                 >
                   i, svg
-                    font-size: 2.25rem
-                    width: 2.25rem
+                    font-size: 2rem
+                    width: 2rem
 
               video.preview, img.preview, audio.preview
                 width: 100%
@@ -518,21 +552,57 @@ div.field
                   inset: 0
                   display: flex
                   align-items: center
-                  justify-content: center
                   text-align: center
                   border-radius: var(--input-border-radius)
                   background: var(--input-background-color)
                   cursor: auto
+                  font-weight: 400
+                  white-space: nowrap
+                  overflow: hidden
+                  text-overflow: ellipsis
 
                   &:empty
                     display: none
 
-                &.filename
-                  text-decoration: underline
-                  font-weight: bold
-                  font-size: var(--input-font-size)
-                  font-family: var(--input-font-family)
-                  color: var(--input-color)
+              button.next, button.prev
+                position: absolute
+                top: 0
+                bottom: 0
+                padding: .5rem
+                display: flex
+                align-items: center
+                justify-content: center
+
+              button.next
+                right: 0
+                transform: translateX(100%)
+                &::after
+                  content: ">"
+                  transform: scaleY(1.1)
+
+              button.prev
+                left: 0
+                transform: translateX(-100%)
+                &::after
+                  content: "<"
+                  transform: scaleY(1.1)
+
+            + div.filename
+              text-decoration: underline
+              font-weight: bold
+              font-size: var(--input-font-size)
+              font-family: var(--input-font-family)
+              color: var(--input-color)
+              white-space: nowrap
+              overflow: hidden
+              text-overflow: ellipsis
+              width: 100%
+
+            &.no-preview > div.preview-placeholder
+              >
+                i, svg
+                  font-size: 1.25rem
+                  width: 1.25rem
 
       input[type="file"]
         &:placeholder-shown + label > span.label > span:last-child, &.filled + label > span.label > span:last-child
@@ -541,8 +611,8 @@ div.field
         &:placeholder-shown + label > div.preview-container > button, &.filled + label > div.preview-container > button
           display: flex
 
-    &.large > label
-      height: 12rem
+    &.large > label > div.preview-container:not(.no-preview)
+      height: 9rem
 
-    &.xlarge > label
-      height: 16rem
+    &.xlarge > label > div.preview-container:not(.no-preview)
+      height: 12rem

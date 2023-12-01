@@ -110,6 +110,29 @@ div.field
       @apply p-0
 
     /*
+      this for the number input, when you use options on f.field: {type: :number},
+      with {with_controls: true} and optionally {with_controls_on_input: true},
+    div.field-container
+      >
+        input.with-controls-on-input
+          @apply px-8
+
+        button.field-number-minus,
+        button.field-number-plus
+          @apply p-3 flex items-center justify-center leading-none
+          &.on-input
+            @apply absolute inset-y-0
+
+        button.field-number-minus
+          @apply left-0
+        button.field-number-plus
+          @apply right-0
+
+  &[data-controller="number-field"] > div.field-container
+    @apply flex-row gap-2
+
+  >
+    /*
       this is the input, select, textarea placeholder styling, with basic styling.
       (i know that select doesn't have placeholder, but if there is a future update, we are ready)
     input::placeholder, select::placeholder, textarea::placeholder,
@@ -172,7 +195,7 @@ div.field
               options: {input_class: "my-input-class" } instead
 
             &[type="checkbox"]
-              @apply <%= @theme[:checkbox_color] %> <%= @theme[:checkbox_size] %> <%= @theme[:checkbox_border_color] %> <%= @theme[:checkbox_border_width] %> <%= @theme[:checkbox_border_radius] %> <%= @theme[:checkbox_size] %> accent-current m-0
+              @apply <%= @theme[:checkbox_color] %> <%= @theme[:checkbox_size] %> <%= @theme[:checkbox_border_color] %> <%= @theme[:checkbox_border_width] %> <%= @theme[:checkbox_border_radius] %> accent-current m-0
 
             /*
               this is the radio styling, with basic styling.
@@ -181,7 +204,7 @@ div.field
               options: {input_class: "my-input-class" } instead
 
             &[type="radio"]
-              @apply <%= @theme[:radio_color] %> <%= @theme[:radio_size] %> <%= @theme[:radio_border_color] %> <%= @theme[:radio_border_width] %> <%= @theme[:radio_border_radius] %> <%= @theme[:radio_size] %> accent-current m-0
+              @apply <%= @theme[:radio_color] %> <%= @theme[:radio_size] %> <%= @theme[:radio_border_color] %> <%= @theme[:radio_border_width] %> <%= @theme[:radio_border_radius] %> accent-current m-0
 
   /*
     this is the multiselect styling, vanilla multiselect is very ugly,
@@ -264,7 +287,7 @@ div.field
         @apply opacity-0 h-px
 
       label
-        @apply flex flex-col <%= @theme[:label_input_error_gap] %> h-36 cursor-pointer font-bold
+        @apply flex flex-col <%= @theme[:label_input_error_gap] %> cursor-pointer font-bold
 
         >
           span.label
@@ -274,10 +297,16 @@ div.field
               @apply hidden underline
 
           div.preview-container
-            @apply flex-1 <%= @theme[:input_background_color] %> relative <%= @theme[:input_border_width] %> <%= @theme[:input_border_color] %> <%= @theme[:input_border_radius] %>
+            @apply <%= @theme[:input_background_color] %> relative <%= @theme[:input_border_width] %> <%= @theme[:input_border_color] %> <%= @theme[:input_border_radius] %>
+            &:not(.no-preview).multiple
+              @apply mx-8
+            &:not(.no-preview)
+              @apply h-24
+            &.no-preview
+              @apply w-full
 
             >
-              button
+              button:not(.next):not(.prev)
                 @apply absolute top-0 right-0 p-1 rounded-full aspect-1 bg-inherit leading-none scale-75 brightness-90 transition-all duration-200 border-0 hidden
 
                 &:hover
@@ -299,13 +328,34 @@ div.field
 
               div
                 &.preview
-                  @apply w-full h-full absolute inset-0 flex items-center justify-center <%= @theme[:input_border_radius] %> <%= @theme[:input_background_color] %> cursor-auto
+                  @apply w-full h-full absolute inset-0 flex items-center <%= @theme[:input_border_radius] %> <%= @theme[:input_background_color] %> cursor-auto
 
                   &:empty
                     @apply hidden
 
-                &.filename
-                  @apply underline font-bold <%= @theme[:input_font_size] %> <%= @theme[:input_font_family] %> <%= @theme[:input_color] %>
+              button.next, button.prev
+                @apply absolute inset-y-0 p-2 flex items-center justify-center;
+
+              button.next
+                @apply right-0 translate-x-full;
+                &::after
+                  content: ">"
+                  @apply scale-y-110;
+
+              button.prev
+                @apply left-0 -translate-x-full;
+                &::after
+                  content: "<"
+                  @apply scale-y-110;
+
+            + div.filename
+              @apply underline font-bold <%= @theme[:input_font_size] %> <%= @theme[:input_font_family] %> <%= @theme[:input_color] %>
+
+            &.no-preview > div.preview-placeholder
+              >
+                i, svg
+                  font-size: 1.25em
+                  width: 1.25em
 
       input[type="file"]
         &:placeholder-shown + label > span.label > span:last-child, &.filled + label > span.label > span:last-child
@@ -314,8 +364,8 @@ div.field
         &:placeholder-shown + label > div.preview-container > button, &.filled + label > div.preview-container > button
           @apply flex
 
-    &.large > label
-      @apply h-48
+    &.large > label > div.preview-container:not(.no-preview)
+      @apply h-36
 
-    &.xlarge > label
-      @apply h-64
+    &.xlarge > label > div.preview-container:not(.no-preview)
+      @apply h-48
