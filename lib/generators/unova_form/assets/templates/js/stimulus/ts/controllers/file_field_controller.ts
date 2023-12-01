@@ -194,6 +194,7 @@ export default class extends StimulusController {
         this.updateButtons();
       } else {
         this.updateDivPreviewEls();
+        this.previewTexts = "";
         this.displayedPreview = 0;
       }
     } else {
