@@ -336,7 +336,7 @@ div.field[data-controller="file-field"] > label > div.preview-container.no-previ
   @apply w-full;
 }
 div.field[data-controller="file-field"] > label > div.preview-container > button:not(.next):not(.prev){
-  @apply absolute top-0 right-0 p-1 rounded-full aspect-1 bg-inherit leading-none scale-75 brightness-90 transition-all duration-200 border-0 hidden;
+  @apply absolute top-0 right-0 p-1 rounded-full aspect-1 bg-inherit leading-none scale-75 brightness-90 transition-all duration-200 border-0 hidden <%= @theme[:input_color] %>;
 }
 div.field[data-controller="file-field"] > label > div.preview-container > button:not(.next):not(.prev):hover{
   @apply brightness-75;
@@ -365,7 +365,7 @@ div.field[data-controller="file-field"] > label > div.preview-container > audio.
   @apply hidden;
 }
 div.field[data-controller="file-field"] > label > div.preview-container > div.preview{
-  @apply w-full h-full absolute inset-0 flex items-center <%= @theme[:input_border_radius] %> <%= @theme[:input_background_color] %> cursor-auto font-normal whitespace-nowrap overflow-hidden text-ellipsis;
+  @apply w-full h-full absolute inset-0 flex items-center <%= @theme[:input_border_radius] %> <%= @theme[:input_background_color] %> <%= @theme[:input_padding] %> cursor-auto font-normal whitespace-nowrap overflow-hidden text-ellipsis;
 }
 div.field[data-controller="file-field"] > label > div.preview-container > div.preview:empty{
   @apply hidden;

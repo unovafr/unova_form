@@ -354,7 +354,7 @@ div.field {
 
             > {
               button:not(.next):not(.prev) {
-                @apply absolute top-0 right-0 p-1 rounded-full aspect-1 bg-inherit leading-none scale-75 brightness-90 transition-all duration-200 border-0 hidden;
+                @apply absolute top-0 right-0 p-1 rounded-full aspect-1 bg-inherit leading-none scale-75 brightness-90 transition-all duration-200 border-0 hidden <%= @theme[:input_color] %>;
 
                 &:hover {
                   @apply brightness-75;
@@ -382,7 +382,7 @@ div.field {
 
               div {
                 &.preview {
-                  @apply w-full h-full absolute inset-0 flex items-center <%= @theme[:input_border_radius] %> <%= @theme[:input_background_color] %> cursor-auto whitespace-nowrap overflow-hidden text-ellipsis;
+                  @apply w-full h-full absolute inset-0 flex items-center <%= @theme[:input_border_radius] %> <%= @theme[:input_background_color] %> <%= @theme[:input_padding] %> cursor-auto whitespace-nowrap overflow-hidden text-ellipsis;
 
                   &:empty {
                     @apply hidden;
