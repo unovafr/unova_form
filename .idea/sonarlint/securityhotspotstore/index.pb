@@ -23,3 +23,13 @@ R
 "lib/unova_form/field_types/file.rb,c/e/ce7f93912ec29b502908b260fae7cea6276f838c
 I
 lib/unova_form/builder.rb,f/2/f2747a2c1a34de7055422c557c940c698c2afa1c
+A
+lib/unova_form.rb,7/d/7d919e47ac7566d4bab4d03bb1d9c446bdae3c95
+]
+-.idea/sonarlint/securityhotspotstore/index.pb,8/8/88a9255124c95bdc913197c120a8d560edc59c8e
+S
+#.idea/sonarlint/issuestore/index.pb,9/f/9fe84ebb15faf917b7def6236dba604453cc61e0
+Å
+Q.idea/sonarlint/securityhotspotstore/7/d/7d919e47ac7566d4bab4d03bb1d9c446bdae3c95,5/0/5040f1f5080d70e1e2bc5153db7a97ecbabbeec5
+w
+G.idea/sonarlint/issuestore/7/d/7d919e47ac7566d4bab4d03bb1d9c446bdae3c95,8/2/823b4727c982be59e19daba0b07688304ecf2bd9
