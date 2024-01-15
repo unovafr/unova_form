@@ -312,7 +312,7 @@ module UnovaForm
       # noinspection RubyMismatchedReturnType (RETURN TYPE WILL BE CORRECT)
       def current_field
         @field ||= forms[@current_validation_context].fields[@current_method]
-        raise Exception.new("model #{object.class} dont have field :#{@current_method} on form :#{validation_context}.") if @field.nil? || !@field
+        raise Exception.new("model #{object.class} dont have field :#{@current_method} on form :#{@current_validation_context}.") if @field.nil? || !@field
 
         @field
       end
