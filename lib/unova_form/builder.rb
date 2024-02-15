@@ -127,7 +127,7 @@ module UnovaForm
 
       label = options[:no_label] ? nil : options[:label] || current_human_name_for
 
-      if attrs[:options].present?
+      unless attrs[:options].nil?
         return select_field label, multiple: multiple?, **attrs
       end
 
