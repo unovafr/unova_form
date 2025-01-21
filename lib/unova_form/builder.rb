@@ -296,8 +296,17 @@ module UnovaForm
 
       def convert_regex_to_js(regex)
         safe_join([
-                    regex.inspect.sub('\\A', "^").sub('\\Z', "$").sub('\\z', "$").sub(%r{^/}, "").sub(%r{/[a-z]*$}, "").gsub(/\(\?#.+\)/, "").gsub(/\(\?-\w+:/, "(")
-                  ])
+          regex.inspect
+            .sub('\\A', "^")          # \A is start of string in ruby, ^ is start of string in js
+            .sub('\\Z', "$")          # \Z is end of string in ruby, $ is end of string in js
+            .sub('\\z', "$")          # \z is end of string in ruby, $ is end of string in js
+            .sub(%r{^/}, "")          # remove first /, as we are not building a litteral, but a regex who will be parsed by new RegExp in js by the browser
+            .sub(%r{/[a-z]*$}, "")    # remove last / and flags, as we are not building a litteral, but a regex who will be parsed by new RegExp in js by the browser
+            .gsub(/\(\?#[^)]+\)/, "") # remove comments
+          # .gsub(/\(\?:/, "(")       # remove non-capturing groups
+            .gsub(/\(\?P[<'][^<']+[<']/, "(") # remove named groups
+            .gsub(/\\/, "\\\\")       # escape backslashes as javascript will parse it from a string litteral, backslashes will try to excape next character
+        ])
       end
 
       def validator_to_html_pattern(validator, pattern_messages)
