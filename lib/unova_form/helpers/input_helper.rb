@@ -6,9 +6,9 @@ module UnovaForm
       extend ActionView::Helpers::TagHelper
       extend ActionView::Context
 
-      PASSWORD_FIELD_DEFAULT_ICON = '<svg focuseable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 570 512" width="16"><path fill="currentColor" d="M288 80c-65.2 0-118.8 29.6-159.9 67.7C89.6 183.5 63 226 49.4 256c13.6 30 40.2 72.5 78.6 108.3C169.2 402.4 222.8 432 288 432s118.8-29.6 159.9-67.7C486.4 328.5 513 286 526.6 256c-13.6-30-40.2-72.5-78.6-108.3C406.8 109.6 353.2 80 288 80zM95.4 112.6C142.5 68.8 207.2 32 288 32s145.5 36.8 192.6 80.6c46.8 43.5 78.1 95.4 93 131.1c3.3 7.9 3.3 16.7 0 24.6c-14.9 35.7-46.2 87.7-93 131.1C433.5 443.2 368.8 480 288 480s-145.5-36.8-192.6-80.6C48.6 356 17.3 304 2.5 268.3c-3.3-7.9-3.3-16.7 0-24.6C17.3 208 48.6 156 95.4 112.6zM288 336c44.2 0 80-35.8 80-80s-35.8-80-80-80c-.7 0-1.3 0-2 0c1.3 5.1 2 10.5 2 16c0 35.3-28.7 64-64 64c-5.5 0-10.9-.7-16-2c0 .7 0 1.3 0 2c0 44.2 35.8 80 80 80zm0-208a128 128 0 1 1 0 256 128 128 0 1 1 0-256z"></path></svg>'.html_safe.freeze
-      SEARCH_FIELD_DEFAULT_ICON = '<svg focuseable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="16"><path fill="currentColor" d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"></path></svg>'.html_safe.freeze
-      FILE_FIELD_DEFAULT_ICON = '<svg focuseable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16"><path fill="currentColor" d="M19 9h-4V3H9v6H5l7 8zM4 19h16v2H4z"></path></svg>'.html_safe.freeze
+      PASSWORD_FIELD_DEFAULT_ICON = 'password'
+      SEARCH_FIELD_DEFAULT_ICON = 'search'
+      FILE_FIELD_DEFAULT_ICON = 'file'
 
       # These are bound stimulus controller by default to input fields of given types
       #
@@ -128,7 +128,7 @@ module UnovaForm
       # @param [Numeric, NilClass] step
       # @param [String, NilClass] pattern
       # @return [ActionView::Helpers::TagHelper::TagBuilder, ActiveSupport::SafeBuffer]
-      def input_field(label, id: nil, type: :text, name: nil, error: nil, value: nil, required: nil, disabled: nil, placeholder: nil, icon: nil, is_icon_left: nil, container_options: {}, subcontainer_options: {}, input_options: {}, label_options: {}, icon_options: {}, rows: "3", controller: nil, with_controls: false, controls_on_input: false, min: nil, max: nil, step: nil, pattern: nil, options: nil, **_options)
+      def input_field(label, id: nil, type: :text, name: nil, error: nil, value: nil, required: nil, disabled: nil, placeholder: nil, icon: nil, suffix_icon: nil, container_options: {}, subcontainer_options: {}, input_options: {}, label_options: {}, icon_options: {}, suffix_icon_options: {}, rows: "3", controller: nil, with_controls: false, controls_on_input: false, min: nil, max: nil, step: nil, pattern: nil, options: nil, **_options)
         id ||= random_id
 
         case type
@@ -189,10 +189,13 @@ module UnovaForm
           data: { action: "click->number-field#add" }
         ) if with_controls && type == :number
 
-        icon_options[:class] = array_attr(["icon", ("left" if is_icon_left), icon_options[:class]])
+        icon_options[:class] = array_attr(["icon", "icon-#{icon}", icon_options[:class]])
         icon_options[:data] = { action: "click->password-field#toggle", **icon_options[:data].to_h } if type == :password
 
-        els << tag.div(icon, **icon_options) if icon.present? && !with_controls
+        suffix_icon_options[:class] = array_attr(["icon icon-suffix", "icon-#{suffix_icon}", suffix_icon_options[:class]])
+
+        els << tag.div(**icon_options) if icon.present? && !with_controls
+        els << tag.div(**suffix_icon_options) if suffix_icon.present? && !with_controls
 
         if options.present?
           els << content_tag(:datalist,
@@ -228,10 +231,11 @@ module UnovaForm
       # @option options [TrueClass, FalseClass] :selected if option tag is selected
       # @option options [TrueClass, FalseClass] :disabled if option tag is disabled
       # @return [ActionView::Helpers::TagHelper::TagBuilder, ActiveSupport::SafeBuffer]
-      def select_field(label, id: nil, type: :select, name: nil, error: nil, value: nil, required: nil, disabled: nil, placeholder: "select", options: [], icon: nil, is_icon_left: nil, container_options: {}, subcontainer_options: {}, input_options: {}, label_options: {}, icon_options: {}, placeholder_options: {}, controller: nil, multiple: false, **_options)
+      def select_field(label, id: nil, type: :select, name: nil, error: nil, value: nil, required: nil, disabled: nil, placeholder: "select", options: [], icon: nil, suffix_icon: nil, container_options: {}, subcontainer_options: {}, input_options: {}, label_options: {}, icon_options: {}, suffix_icon_options: {}, placeholder_options: {}, controller: nil, multiple: false, **_options, &label_block)
         id ||= random_id
         options ||= []
         options.unshift({ value: "", label: placeholder, disabled: required || multiple, selected: value.blank? }) if placeholder.present? && placeholder != ""
+        suffix_icon ||= 'arrow-down' if type == :select
 
         unless [:select, :checkboxes].include?(type&.to_sym)
           raise "Select fields must have :select or :checkboxes types respectively provided by UnovaForm::FormTypes::Select UnovaForm::FormTypes::CheckSelect"
@@ -242,7 +246,7 @@ module UnovaForm
 
         select_el = case type
         when :select
-          input_options[:class] = array_attr([input_options[:class], ("with-icon#{"-left" if is_icon_left}" if icon.present?)])
+          input_options[:class] = array_attr([input_options[:class], ("with-icon" if icon.present?)])
 
           tag.select(
             safe_join(options.map { |o|
@@ -285,13 +289,28 @@ module UnovaForm
           nil
         end
 
-        field_container(label, id:,
+        field_container(
+          label,
+          id:,
           type: multiple && type == :select ? :multiselect : :text,
           omit_subcontainer: multiple && type == :select,
-          error:, container_options:, subcontainer_options:, label_options:, controller:, required:) do
-          icon_options[:class] = array_attr(["icon", ("left" if is_icon_left), icon_options[:class]])
-
-          safe_join([ select_el, (tag.div(icon, **icon_options) if type == :select) ])
+          error:,
+          container_options:, 
+          subcontainer_options:,
+          label_options:,
+          controller:,
+          required:
+        ) do
+            elements = []
+            elements << label_block.call if label_block.present?
+            elements << select_el
+            if type == :select
+              icon_options[:class] = array_attr(["icon icon-#{icon}", icon_options[:class]])
+              suffix_icon_options[:class] = array_attr(["icon icon-suffix icon-#{suffix_icon}", suffix_icon_options[:class]])
+              elements << tag.div(**icon_options) if icon.present?
+              elements << tag.div(**suffix_icon_options) if suffix_icon.present?
+            end
+            safe_join(elements)
         end
       end
 
@@ -376,7 +395,7 @@ module UnovaForm
 
         name += "[]" if multiple && name.present?
 
-        field_container(nil, id:, type: :file, error:, container_options:, label_options:, controller:, omit_subcontainer: true) do
+        field_container(label, id:, type: :file, error:, container_options:, label_options:, controller:, omit_subcontainer: true) do
 
           input_options[:class] = array_attr([input_options[:class], ("filled" if value&.present?)])
           input_options[:data] = {
