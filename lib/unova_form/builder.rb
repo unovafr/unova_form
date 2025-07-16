@@ -424,7 +424,7 @@ module UnovaForm
       end
 
       def parse_additional_options(additional_options)
-        groups = %w[container subcontainer input label icon placeholder]
+        groups = %w[container subcontainer input label icon suffix_icon placeholder]
         group_options={}
         res = additional_options.map do |k, v|
           group = groups.find { |g| k.to_s.start_with?("#{g}_") || (k.to_s == g && v.is_a?(Hash)) }

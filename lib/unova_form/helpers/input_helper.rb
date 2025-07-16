@@ -113,7 +113,6 @@ module UnovaForm
       # @param [TrueClass, FalseClass, NilClass] required
       # @param [String, NilClass] placeholder
       # @param [ActionView::Helpers::TagHelper::TagBuilder , ActiveSupport::SafeBuffer, String, NilClass] icon
-      # @param [TrueClass, FalseClass, NilClass] is_icon_left
       # @param [Hash{Symbol => String, NilClass, Hash{Symbol => String, NilClass}}] container_options
       # @param [Hash{Symbol => String, NilClass, Hash{Symbol => String, NilClass}}] subcontainer_options
       # @param [Hash{Symbol => String, NilClass, Hash{Symbol => String, NilClass}}] input_options
@@ -133,13 +132,10 @@ module UnovaForm
 
         case type
         when :password
-          icon ||= PASSWORD_FIELD_DEFAULT_ICON
-          is_icon_left ||= false
+          suffix_icon ||= PASSWORD_FIELD_DEFAULT_ICON
         when :search
           icon ||= SEARCH_FIELD_DEFAULT_ICON
-          is_icon_left ||= false
         else
-          is_icon_left ||= false
         end
 
         # fields like number, have a step attribute.
@@ -161,7 +157,7 @@ module UnovaForm
         input_options[:class] = array_attr([
           input_options[:class],
           ("with-controls#{"-on-input" if controls_on_input}" if with_controls),
-          ("with-icon#{"-left" if is_icon_left}" if icon.present?),
+          ("with-icon" if icon.present?),
         ])
         
         els << content_tag(
@@ -190,8 +186,8 @@ module UnovaForm
         ) if with_controls && type == :number
 
         icon_options[:class] = array_attr(["icon", "icon-#{icon}", icon_options[:class]])
-        icon_options[:data] = { action: "click->password-field#toggle", **icon_options[:data].to_h } if type == :password
 
+        suffix_icon_options[:data] = { action: "click->password-field#toggle", **suffix_icon_options[:data].to_h } if type == :password
         suffix_icon_options[:class] = array_attr(["icon icon-suffix", "icon-#{suffix_icon}", suffix_icon_options[:class]])
 
         els << tag.div(**icon_options) if icon.present? && !with_controls
@@ -217,7 +213,6 @@ module UnovaForm
       # @param [String, NilClass] placeholder
       # @param [Array<Hash{Symbol => String, FalseClass, TrueClass}>] options
       # @param [ActionView::Helpers::TagHelper::TagBuilder , ActiveSupport::SafeBuffer, String, NilClass] icon
-      # @param [TrueClass, FalseClass, NilClass] is_icon_left
       # @param [Hash{Symbol => String, NilClass, Hash{Symbol => String, NilClass}}] container_options
       # @param [Hash{Symbol => String, NilClass, Hash{Symbol => String, NilClass}}] subcontainer_options
       # @param [Hash{Symbol => String, NilClass, Hash{Symbol => String, NilClass}}] input_options
