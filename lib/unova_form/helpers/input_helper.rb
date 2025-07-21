@@ -127,7 +127,7 @@ module UnovaForm
       # @param [Numeric, NilClass] step
       # @param [String, NilClass] pattern
       # @return [ActionView::Helpers::TagHelper::TagBuilder, ActiveSupport::SafeBuffer]
-      def input_field(label, id: nil, type: :text, name: nil, error: nil, value: nil, required: nil, disabled: nil, placeholder: nil, icon: nil, suffix_icon: nil, container_options: {}, subcontainer_options: {}, input_options: {}, label_options: {}, icon_options: {}, suffix_icon_options: {}, rows: "3", controller: nil, with_controls: false, controls_on_input: false, min: nil, max: nil, step: nil, pattern: nil, options: nil, **_options)
+      def input_field(label, id: nil, type: :text, name: nil, error: nil, value: nil, required: nil, disabled: nil, placeholder: nil, icon: nil, suffix_icon: nil, container_options: {}, subcontainer_options: {}, input_options: {}, label_options: {}, icon_options: {}, suffix_icon_options: {}, rows: "3", controller: nil, with_controls: false, controls_on_input: false, min: nil, max: nil, step: nil, pattern: nil, options: nil, autoselect: nil, **_options)
         id ||= random_id
 
         case type
@@ -136,6 +136,12 @@ module UnovaForm
         when :search
           icon ||= SEARCH_FIELD_DEFAULT_ICON
         else
+        end
+
+        if [:decimal, :integer, :positive_decimal, :positive_integer, :negative_decimal, :negative_integer].include? type
+          autoselect ||= true
+        else
+          autoselect ||= false
         end
 
         # fields like number, have a step attribute.
@@ -325,12 +331,14 @@ module UnovaForm
       # @param [Symbol, String, NilClass] controller
       # @param [TrueClass, FalseClass, NilClass] checked
       # @return [ActionView::Helpers::TagHelper::TagBuilder, ActiveSupport::SafeBuffer]
-      def boolean_field(label, id: nil, type: :checkbox, name: nil, error: nil, value: "true", required: nil, disabled: nil, placeholder: "accept", container_options: {}, subcontainer_options: {}, input_options: {}, label_options: {}, placeholder_options: {}, controller: nil, checked: nil, **options)
+      def boolean_field(label, id: nil, type: :checkbox, name: nil, error: nil, value: "true", required: nil, disabled: nil, placeholder: "accept", container_options: {}, subcontainer_options: {}, input_options: {}, label_options: {}, placeholder_options: {}, controller: nil, checked: nil, item_options: {}, **options)
         id ||= random_id
 
         unless [:checkbox].include?(type&.to_sym)
           raise "Boolean fields must have :checkbox types respectively provided by UnovaForm::FormTypes::Boolean"
         end
+
+        item_options[:class] = array_attr(['field-checkboxes-item', item_options[:class]])
 
         field_container(label, id: nil, type:, error:, container_options:, subcontainer_options:, label_options:, controller:) do
           tag.div(
@@ -350,7 +358,7 @@ module UnovaForm
               ),
               (tag.label(placeholder, for: id, **placeholder_options) if placeholder.present?)
             ]),
-            class: "field-checkboxes-item"
+            **item_options
           )
         end
       end
