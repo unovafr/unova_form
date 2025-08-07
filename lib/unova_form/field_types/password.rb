@@ -21,14 +21,14 @@ module UnovaForm
         # classic password validation regex that tests if there is one of [a-z], [A-Z], [0-9] and
         # [!"#$%&'()*+,-.;</:=?>@[\]^_`{|}~] and password is 8 chars long, overridable validation
         format: [
-          { with: Regexp.new("[#{CHARS_BY_TYPE[:lower].join}]"), message: :must_have_one_lowercase_character },
-          { with: Regexp.new("[#{CHARS_BY_TYPE[:upper].join}]"), message: :must_have_one_uppercase_character },
-          { with: Regexp.new("[#{CHARS_BY_TYPE[:digit].join}]"), message: :must_have_one_digit },
+          { with: Regexp.new("[#{CHARS_BY_TYPE[:lower].join}]"), error: :must_have_one_lowercase_character },
+          { with: Regexp.new("[#{CHARS_BY_TYPE[:upper].join}]"), error: :must_have_one_uppercase_character },
+          { with: Regexp.new("[#{CHARS_BY_TYPE[:digit].join}]"), error: :must_have_one_digit },
           {
             with: Regexp.new("[#{CHARS_BY_TYPE[:special].join.gsub(/[\[\]\-\\]/) { |c| "\\#{c}" }}]"),
-            message: :must_have_one_special_character
+            error: :must_have_one_special_character
           },
-          { with: /\A.{#{PASSWORD_LENGTH},#{MAX_PASSWORD_LENGTH_ALLOWED}}\z/, message: :must_be_between_8_and_72_characters_long },
+          { with: /\A.{#{PASSWORD_LENGTH},#{MAX_PASSWORD_LENGTH_ALLOWED}}\z/, error: :must_be_between_8_and_72_characters_long },
         ]
       }.freeze
 
