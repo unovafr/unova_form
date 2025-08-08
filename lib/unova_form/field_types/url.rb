@@ -7,7 +7,9 @@ module UnovaForm
 
       VALIDATORS = {
         # classic url validation with facultative "http"/"https", and facultative "www.".
-        format: { with: /\A(?:https?:\/\/)?(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)\z/, message: :invalid_url_format }
+        format: { with: /\A(?:https?:\/\/)?(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)\z/,
+                  key: :invalid_url_format,
+                  message: :invalid_url_format }
       }.freeze
     end
   end

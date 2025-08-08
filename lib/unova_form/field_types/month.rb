@@ -7,7 +7,7 @@ module UnovaForm
 
       VALIDATORS = {
         # classic datetime validation
-        format: { with: /\A\d{4}-\d{2}\z/, message: :invalid_month_format }
+        format: { with: /\A\d{4}-\d{2}\z/, key: :invalid_month_format, message: :invalid_month_format }
       }.freeze
     end
   end

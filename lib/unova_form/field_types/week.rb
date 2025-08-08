@@ -7,7 +7,9 @@ module UnovaForm
 
       VALIDATORS = {
         # classic datetime validation
-        format: { with: /\A\d{4}-W\d{2}\z/, message: :invalid_week_format }
+        format: { with: /\A\d{4}-W\d{2}\z/,
+                  key: :invalid_week_format,
+                  message: :invalid_week_format }
       }.freeze
     end
   end
