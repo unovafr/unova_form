@@ -7,7 +7,7 @@ module UnovaForm
 
       VALIDATORS = {
         # classic color validation
-        format: { with: /\A#[a-f0-9]{6}\z/, message: :invalid_color_format }
+        format: { with: /\A#[a-f0-9]{6}\z/, key: :invalid_color_format, message: :invalid_color_format }
       }.freeze
     end
   end
