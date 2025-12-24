@@ -82,6 +82,7 @@ module UnovaForm
         # @type [String, NilClass] data_controller
 
         container_options[:class] = array_attr([container_options[:class], "field"])
+
         container_options[:data] = {
           **container_options[:data].to_h,
           controller: array_attr([data_controller_of(type, controller), container_options[:data]&.[](:controller)]),
@@ -92,12 +93,11 @@ module UnovaForm
         
         label_options[:for] = id
         label_options[:required] = required
-        
 
         tag.div(**container_options) do
           els = []
           els << tag.div(error, class: "error") if error
-          els << (omit_subcontainer ? yield : tag.div( yield, **subcontainer_options))
+          els << (omit_subcontainer ? yield : tag.div(yield, **subcontainer_options))
           els << tag.label(label, **label_options) if label.present?
 
           safe_join(els)
@@ -268,7 +268,6 @@ module UnovaForm
             cid = random_id
             tag.div(safe_join([
               tag.input(
-                nil,
                 type: multiple ? :checkbox : :radio,
                 value: o[:value],
                 id: cid,
@@ -332,6 +331,7 @@ module UnovaForm
       # @param [TrueClass, FalseClass, NilClass] checked
       # @return [ActionView::Helpers::TagHelper::TagBuilder, ActiveSupport::SafeBuffer]
       def boolean_field(label, id: nil, type: :checkbox, name: nil, error: nil, value: "true", required: nil, disabled: nil, placeholder: "accept", container_options: {}, subcontainer_options: {}, input_options: {}, label_options: {}, placeholder_options: {}, controller: nil, checked: nil, item_options: {}, **options)
+
         id ||= random_id
 
         unless [:checkbox].include?(type&.to_sym)
@@ -344,7 +344,6 @@ module UnovaForm
           tag.div(
             safe_join([
               tag.input(
-                nil,
                 type:,
                 value:,
                 id:,
