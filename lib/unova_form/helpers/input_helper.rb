@@ -232,66 +232,65 @@ module UnovaForm
         id ||= random_id
         options ||= []
         options.unshift({ value: "", label: placeholder, disabled: required || multiple, selected: value.blank? }) if placeholder.present? && placeholder != ""
-
         unless [:select, :checkboxes].include?(type&.to_sym)
           raise "Select fields must have :select or :checkboxes types respectively provided by UnovaForm::FormTypes::Select UnovaForm::FormTypes::CheckSelect"
         end
-
         name += "[]" if multiple && name.present?
-
-
         select_el = case type
-        when :select
-          input_options[:class] = array_attr([input_options[:class], ("with-icon#{"-left" if is_icon_left}" if icon.present?)])
+                    when :select
+                      input_options[:class] = array_attr([input_options[:class], ("with-icon#{"-left" if is_icon_left}" if icon.present?)])
+                      tag.select(
+                        safe_join(options.map { |o|
+                          o[:selected] ||= multiple ? value&.include?(o[:value]) : o[:value] == value
+                          tag.option(o[:label], value: o[:value], selected: o[:selected], disabled: o[:disabled])
+                        }),
+                        id:,
+                        name: name || id,
+                        required:,
+                        title: (placeholder || name || id if label.nil?),
+                        multiple:,
+                        disabled:,
+                        **_options,
+                        **input_options
+                      )
+                    when :checkboxes
+                      any_checked = multiple && options.reject { |o| o[:disabled] }.any? { |o|
+                        o[:selected] || value&.include?(o[:value])
+                      }
+                      onchange_js = multiple && required ? "const cbs=this.closest('.field-subcontainer').querySelectorAll('input[type=checkbox]');const any=[...cbs].some(c=>c.checked);cbs.forEach(c=>c.required=!any)" : nil
 
-          tag.select(
-            safe_join(options.map { |o|
-              o[:selected] ||= multiple ? value&.include?(o[:value]) : o[:value] == value
-              tag.option(o[:label], value: o[:value], selected: o[:selected], disabled: o[:disabled])
-            }),
-            id:,
-            name: name || id,
-            required:,
-            title: (placeholder || name || id if label.nil?),
-            multiple:,
-            disabled:,
-            **_options,
-            **input_options
-          )
-        when :checkboxes
-          safe_join(options.reject { |o| o[:disabled] }.map do |o|
-            cid = random_id
-            tag.div(safe_join([
-              tag.input(
-                nil,
-                type: multiple ? :checkbox : :radio,
-                value: o[:value],
-                id: cid,
-                name: name || id,
-                checked: o[:selected] || (multiple ? value&.include?(o[:value]) : o[:value] == value),
-                required:,
-                title: (placeholder || name || cid if o[:label].empty?),
-                disabled: o[:disabled] || disabled,
-                **_options,
-                **input_options
-              ),
-              tag.label(
-                o[:label],
-                for: cid,
-                **placeholder_options
-              )
-            ]), class: "field-checkboxes-item")
-          end)
-        else
-          nil
-        end
-
+                      safe_join(options.reject { |o| o[:disabled] }.map do |o|
+                        cid = random_id
+                        tag.div(safe_join([
+                                            tag.input(
+                                              nil,
+                                              type: multiple ? :checkbox : :radio,
+                                              value: o[:value],
+                                              id: cid,
+                                              name: name || id,
+                                              checked: o[:selected] || (multiple ? value&.include?(o[:value]) : o[:value] == value),
+                                              required: multiple ? (required && !any_checked) : required,
+                                              title: (placeholder || name || cid if o[:label].empty?),
+                                              disabled: o[:disabled] || disabled,
+                                              onchange: onchange_js,
+                                              **_options,
+                                              **input_options
+                                            ),
+                                            tag.label(
+                                              o[:label],
+                                              for: cid,
+                                              **placeholder_options
+                                            )
+                                          ]), class: "field-checkboxes-item")
+                      end)
+                    else
+                      nil
+                    end
         field_container(label, id:,
-          type: multiple && type == :select ? :multiselect : :text,
-          omit_subcontainer: multiple && type == :select,
-          error:, container_options:, subcontainer_options:, label_options:, controller:, required:) do
+                        type: multiple && type == :select ? :multiselect : :text,
+                        omit_subcontainer: multiple && type == :select,
+                        error:, container_options:, subcontainer_options:, label_options:, controller:, required:) do
           icon_options[:class] = array_attr(["icon", ("left" if is_icon_left), icon_options[:class]])
-
           safe_join([ select_el, (tag.div(icon, **icon_options) if type == :select) ])
         end
       end
