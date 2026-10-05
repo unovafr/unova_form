@@ -45,9 +45,9 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "overcommit"
   spec.add_development_dependency "yard"
 
-  spec.add_dependency 'rails', '~> 7'
+  spec.add_dependency 'rails', '>= 8'
   spec.add_dependency 'zeitwerk', '~> 2'
-  spec.add_dependency 'validates_timeliness', '~> 7.0.0.beta2'
+  spec.add_dependency 'validates_timeliness', '~> 8.0.0.beta1'
 
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html
