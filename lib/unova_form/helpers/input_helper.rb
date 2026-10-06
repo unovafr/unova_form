@@ -263,7 +263,6 @@ module UnovaForm
                         cid = random_id
                         tag.div(safe_join([
                                             tag.input(
-                                              nil,
                                               type: multiple ? :checkbox : :radio,
                                               value: o[:value],
                                               id: cid,
@@ -322,7 +321,6 @@ module UnovaForm
           tag.div(
             safe_join([
               tag.input(
-                nil,
                 type:,
                 value:,
                 id:,
