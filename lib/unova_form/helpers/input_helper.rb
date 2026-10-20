@@ -269,7 +269,7 @@ module UnovaForm
                                               name: name || id,
                                               checked: o[:selected] || (multiple ? value&.include?(o[:value]) : o[:value] == value),
                                               required: multiple ? (required && !any_checked) : required,
-                                              title: (placeholder || name || cid if o[:label].empty?),
+                                              title: (placeholder || name || cid if o[:label].blank?),
                                               disabled: o[:disabled] || disabled,
                                               onchange: onchange_js,
                                               **_options,
